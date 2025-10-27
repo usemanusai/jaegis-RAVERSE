@@ -7,8 +7,36 @@ Get the MCP server running in 5 minutes.
 - Python 3.13+
 - PostgreSQL 17 (or Docker)
 - Redis 8.2 (or Docker)
+- Node.js 18+ (for NPX option)
 
-## Option 1: Docker (Recommended)
+## Option 1: NPX (Fastest - 1 Minute)
+
+### 1. Run with NPX
+```bash
+# Run the latest version
+npx raverse-mcp-server@latest
+```
+
+### 2. Verify
+```bash
+# In another terminal
+npx raverse-mcp-server@latest --version
+npx raverse-mcp-server@latest --help
+```
+
+**That's it!** The server is running. You can now configure it with environment variables:
+
+```bash
+# With environment variables
+DATABASE_URL=postgresql://user:pass@localhost/raverse \
+REDIS_URL=redis://localhost:6379 \
+OPENROUTER_API_KEY=sk-or-v1-... \
+npx raverse-mcp-server@latest
+```
+
+---
+
+## Option 2: Docker (Recommended for Production)
 
 ### 1. Start Services
 
@@ -54,7 +82,28 @@ Initializing RAVERSE MCP Server
 RAVERSE MCP Server initialized successfully
 ```
 
-## Option 2: Local Development
+## Option 3: NPM Global Installation
+
+### 1. Install
+```bash
+npm install -g raverse-mcp-server
+```
+
+### 2. Configure
+```bash
+export DATABASE_URL=postgresql://user:pass@localhost/raverse
+export REDIS_URL=redis://localhost:6379
+export OPENROUTER_API_KEY=sk-or-v1-...
+```
+
+### 3. Run
+```bash
+raverse-mcp-server
+```
+
+---
+
+## Option 4: Local Development
 
 ### 1. Setup
 

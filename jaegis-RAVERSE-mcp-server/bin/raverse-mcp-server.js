@@ -18,7 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const VERSION = '1.0.1';
+const VERSION = '1.0.2';
 const PACKAGE_NAME = 'raverse-mcp-server';
 
 // Parse command line arguments

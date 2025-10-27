@@ -1,5 +1,24 @@
 # RAVERSE 2.0 - AI Multi-Agent Binary Analysis & Patching System
 
+## 📊 Package Distribution Status
+
+### NPM Package
+[![NPM Version](https://img.shields.io/npm/v/raverse-mcp-server.svg)](https://www.npmjs.com/package/raverse-mcp-server)
+[![NPM Downloads](https://img.shields.io/npm/dt/raverse-mcp-server.svg)](https://www.npmjs.com/package/raverse-mcp-server)
+[![NPM Downloads (Monthly)](https://img.shields.io/npm/dm/raverse-mcp-server.svg)](https://www.npmjs.com/package/raverse-mcp-server)
+
+### PyPI Package
+[![PyPI Version](https://img.shields.io/pypi/v/jaegis-raverse-mcp-server.svg)](https://pypi.org/project/jaegis-raverse-mcp-server/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/jaegis-raverse-mcp-server.svg)](https://pypi.org/project/jaegis-raverse-mcp-server/)
+
+### GitHub Repository
+[![GitHub Stars](https://img.shields.io/github/stars/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
+[![GitHub Forks](https://img.shields.io/github/forks/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
+[![GitHub Issues](https://img.shields.io/github/issues/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE/issues)
+[![GitHub License](https://img.shields.io/github/license/usemanusai/jaegis-RAVERSE.svg)](LICENSE)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
+
+### Project Status
 [![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-green)](docs/PRODUCTION_DEPLOYMENT_GUIDE.md)
@@ -227,6 +246,40 @@ Users of RAVERSE 2.0 must adhere to the following ethical principles:
 - OpenRouter API key (for LLM features)
 
 ### Installation
+
+#### Option 1: NPX (Fastest - No Installation Required)
+
+Run the MCP Server directly with NPX:
+
+```bash
+# Run the latest version without installation
+npx raverse-mcp-server@latest
+
+# Or with specific version
+npx raverse-mcp-server@1.0.2
+```
+
+#### Option 2: Global NPM Installation
+
+```bash
+# Install globally
+npm install -g raverse-mcp-server
+
+# Run the server
+raverse-mcp-server
+```
+
+#### Option 3: PyPI Installation
+
+```bash
+# Install from PyPI
+pip install jaegis-raverse-mcp-server
+
+# Run the server
+python -m jaegis_raverse_mcp_server.server
+```
+
+#### Option 4: Clone Repository
 
 1. **Clone the repository**:
 ```bash

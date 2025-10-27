@@ -55,11 +55,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Create the config file at the location above
 3. Paste the configuration JSON
 4. Restart Claude Desktop
 5. Verify in Claude: "What tools are available?" - should list all 35 RAVERSE tools
+
+**Option 2: NPX (No Installation Required)**
+1. Use NPX directly in the config:
+```json
+{
+  "mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Claude Desktop
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Tools not appearing**: Check that `raverse-mcp-server` is in PATH
@@ -97,11 +120,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Create the config file at the location above
 3. Paste the configuration JSON
 4. Restart Cursor
 5. Open Cursor settings and verify MCP server is connected
+
+**Option 2: NPX (No Installation Required)**
+1. Use NPX directly in the config:
+```json
+{
+  "mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Cursor
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **MCP not loading**: Check Cursor logs in Help > Show Logs
@@ -141,11 +187,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Open `.vscode/settings.json` in your workspace
 3. Add the configuration above
 4. Reload VSCode window (Cmd+R / Ctrl+R)
 5. Open Cline and verify tools are available
+
+**Option 2: NPX (No Installation Required)**
+1. Update `.vscode/settings.json`:
+```json
+{
+  "cline.mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Reload VSCode window (Cmd+R / Ctrl+R)
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Extension not loading**: Restart VSCode
@@ -185,10 +254,33 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Configure `.vscode/settings.json` as shown above
 3. Reload VSCode
 4. Open Roo Code panel and verify connection
+
+**Option 2: NPX (No Installation Required)**
+1. Update `.vscode/settings.json`:
+```json
+{
+  "rooCode.mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Reload VSCode
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Connection timeout**: Increase timeout in settings
@@ -226,11 +318,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Create config file at `~/.augment/mcp_config.json`
 3. Paste configuration
 4. Restart Augment Code
 5. Verify tools in the MCP panel
+
+**Option 2: NPX (No Installation Required)**
+1. Create config file at `~/.augment/mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Augment Code
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Config not found**: Ensure directory exists
@@ -268,11 +383,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Create config at `~/.continue/config.json`
 3. Add configuration
 4. Restart Continue
 5. Test with a query
+
+**Option 2: NPX (No Installation Required)**
+1. Create config at `~/.continue/config.json`:
+```json
+{
+  "mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Continue
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Config parsing error**: Validate JSON syntax
@@ -310,11 +448,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Create config file
 3. Paste configuration
 4. Restart Windsurf
 5. Verify in Windsurf settings
+
+**Option 2: NPX (No Installation Required)**
+1. Create config file with NPX:
+```json
+{
+  "mcpServers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Windsurf
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **MCP panel not showing**: Check Windsurf version
@@ -352,11 +513,34 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Edit `~/.config/zed/settings.json`
 3. Add configuration
 4. Restart Zed
 5. Open MCP panel to verify
+
+**Option 2: NPX (No Installation Required)**
+1. Edit `~/.config/zed/settings.json`:
+```json
+{
+  "mcp_servers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+2. Restart Zed
+3. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Settings not loading**: Check JSON syntax
@@ -395,11 +579,35 @@ Complete configuration guide for integrating RAVERSE MCP Server with 20+ MCP-com
 ```
 
 ### Setup Steps
-1. Install RAVERSE MCP Server: `npm install -g @raverse/mcp-server`
+
+**Option 1: Global NPM Installation**
+1. Install RAVERSE MCP Server: `npm install -g raverse-mcp-server`
 2. Install MCP extension in VSCode
 3. Configure `.vscode/settings.json`
 4. Reload VSCode
 5. Check MCP panel for tools
+
+**Option 2: NPX (No Installation Required)**
+1. Install MCP extension in VSCode
+2. Configure `.vscode/settings.json`:
+```json
+{
+  "mcp.servers": {
+    "raverse": {
+      "command": "npx",
+      "args": ["raverse-mcp-server@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/raverse",
+        "REDIS_URL": "redis://localhost:6379",
+        "OPENROUTER_API_KEY": "sk-or-v1-...",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+3. Reload VSCode
+4. NPX will automatically download and run the latest version
 
 ### Troubleshooting
 - **Extension not found**: Search marketplace for "MCP"

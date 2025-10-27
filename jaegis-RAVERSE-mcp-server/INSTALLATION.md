@@ -4,21 +4,40 @@ Complete installation guide for all distribution methods.
 
 ## Table of Contents
 1. [Quick Start](#quick-start)
-2. [NPM Installation](#npm-installation)
-3. [PyPI Installation](#pypi-installation)
-4. [Docker Installation](#docker-installation)
-5. [From Source](#from-source)
-6. [Verification](#verification)
-7. [Troubleshooting](#troubleshooting)
+2. [NPX Installation](#npx-installation)
+3. [NPM Installation](#npm-installation)
+4. [PyPI Installation](#pypi-installation)
+5. [Docker Installation](#docker-installation)
+6. [From Source](#from-source)
+7. [Verification](#verification)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Quick Start
 
-### Option 1: NPM (Recommended for Most Users)
+### Option 1: NPX (Fastest - No Installation Required)
+```bash
+# Run the latest version without installation
+npx raverse-mcp-server@latest
+
+# Or with specific version
+npx raverse-mcp-server@1.0.2
+
+# Verify it works
+npx raverse-mcp-server@latest --version
+```
+
+**Advantages:**
+- ✅ No global installation needed
+- ✅ Always runs the latest version
+- ✅ Perfect for trying it out quickly
+- ✅ No disk space used when not running
+
+### Option 2: NPM (Recommended for Regular Users)
 ```bash
 # Install globally
-npm install -g @raverse/mcp-server
+npm install -g raverse-mcp-server
 
 # Run the server
 raverse-mcp-server
@@ -27,19 +46,19 @@ raverse-mcp-server
 raverse-mcp-server --version
 ```
 
-### Option 2: PyPI (Recommended for Python Developers)
+### Option 3: PyPI (Recommended for Python Developers)
 ```bash
 # Install via pip
 pip install jaegis-raverse-mcp-server
 
 # Run the server
-raverse-mcp-server
+python -m jaegis_raverse_mcp_server.server
 
 # Verify installation
-raverse-mcp-server --version
+python -m jaegis_raverse_mcp_server.server --version
 ```
 
-### Option 3: Docker (Recommended for Production)
+### Option 4: Docker (Recommended for Production)
 ```bash
 # Pull the image
 docker pull raverse/mcp-server:latest
@@ -52,6 +71,60 @@ docker run -d \
   -p 8000:8000 \
   raverse/mcp-server:latest
 ```
+
+---
+
+## NPX Installation
+
+### Prerequisites
+- Node.js 18.0.0 or higher (usually already installed)
+- npm 9.0.0 or higher (comes with Node.js)
+- Python 3.13 or higher (required by the server)
+- PostgreSQL 17 (for database features)
+- Redis 8.2 (for caching features)
+
+### Installation Steps
+
+#### 1. Verify Node.js is installed
+```bash
+node --version  # Should be 18.0.0 or higher
+npm --version   # Should be 9.0.0 or higher
+```
+
+#### 2. Run the server with NPX
+```bash
+# Run the latest version
+npx raverse-mcp-server@latest
+
+# Or run a specific version
+npx raverse-mcp-server@1.0.2
+```
+
+#### 3. Verify it works
+```bash
+# In another terminal
+npx raverse-mcp-server@latest --version
+npx raverse-mcp-server@latest --help
+```
+
+### Advantages of NPX
+
+- **No Installation**: Runs directly without global installation
+- **Always Latest**: Automatically downloads the latest version
+- **No Disk Space**: Cached locally, doesn't take permanent space
+- **Easy Updates**: Always get the latest features and fixes
+- **Perfect for Testing**: Try the server without committing to installation
+
+### Troubleshooting NPX
+
+**Issue**: `npx: command not found`
+- **Solution**: Install Node.js from https://nodejs.org/
+
+**Issue**: `Cannot find module 'jaegis_raverse_mcp_server'`
+- **Solution**: Ensure Python 3.13+ is installed and in PATH
+
+**Issue**: Database connection errors
+- **Solution**: Configure DATABASE_URL environment variable before running
 
 ---
 

@@ -2,6 +2,15 @@
 
 Production-ready Model Context Protocol (MCP) server for RAVERSE - AI Multi-Agent Binary Patching System.
 
+## 📊 Package Distribution
+
+[![NPM Version](https://img.shields.io/npm/v/raverse-mcp-server.svg)](https://www.npmjs.com/package/raverse-mcp-server)
+[![NPM Downloads](https://img.shields.io/npm/dt/raverse-mcp-server.svg)](https://www.npmjs.com/package/raverse-mcp-server)
+[![PyPI Version](https://img.shields.io/pypi/v/jaegis-raverse-mcp-server.svg)](https://pypi.org/project/jaegis-raverse-mcp-server/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/jaegis-raverse-mcp-server.svg)](https://pypi.org/project/jaegis-raverse-mcp-server/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-blue)](https://www.python.org/)
+
 ## Overview
 
 This MCP server exposes 35 core capabilities from RAVERSE 2.0 as standardized MCP tools, enabling seamless integration with Claude, other AI models, and external systems.
@@ -76,10 +85,22 @@ This MCP server exposes 35 core capabilities from RAVERSE 2.0 as standardized MC
 
 ### Quick Start (Recommended)
 
-#### Option 1: NPM (Global Installation)
+#### Option 1: NPX (Fastest - No Installation Required)
+```bash
+# Run the latest version without installation
+npx raverse-mcp-server@latest
+
+# Or with specific version
+npx raverse-mcp-server@1.0.2
+
+# Verify it works
+npx raverse-mcp-server@latest --version
+```
+
+#### Option 2: NPM (Global Installation)
 ```bash
 # Install globally
-npm install -g @raverse/mcp-server
+npm install -g raverse-mcp-server
 
 # Run the server
 raverse-mcp-server
@@ -88,19 +109,19 @@ raverse-mcp-server
 raverse-mcp-server --version
 ```
 
-#### Option 2: PyPI (Python Package)
+#### Option 3: PyPI (Python Package)
 ```bash
 # Install via pip
 pip install jaegis-raverse-mcp-server
 
 # Run the server
-raverse-mcp-server
+python -m jaegis_raverse_mcp_server.server
 
 # Verify installation
-raverse-mcp-server --version
+python -m jaegis_raverse_mcp_server.server --version
 ```
 
-#### Option 3: Docker
+#### Option 4: Docker
 ```bash
 # Pull and run Docker image
 docker run -d \
