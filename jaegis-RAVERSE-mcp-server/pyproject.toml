@@ -65,10 +65,13 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/usemanusai/jaegis-RAVERSE"
-Documentation = "https://github.com/usemanusai/jaegis-RAVERSE/tree/main/jaegis-RAVERSE-mcp-server"
+Documentation = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/jaegis-RAVERSE-mcp-server/README.md"
 Repository = "https://github.com/usemanusai/jaegis-RAVERSE.git"
 "Bug Tracker" = "https://github.com/usemanusai/jaegis-RAVERSE/issues"
-Changelog = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/jaegis-RAVERSE-mcp-server/CHANGELOG.md"
+"Installation Guide" = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/jaegis-RAVERSE-mcp-server/INSTALLATION.md"
+"Quick Start" = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/jaegis-RAVERSE-mcp-server/QUICKSTART.md"
+"MCP Client Setup" = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/jaegis-RAVERSE-mcp-server/MCP_CLIENT_SETUP.md"
 
 [project.optional-dependencies]
 dev = [
