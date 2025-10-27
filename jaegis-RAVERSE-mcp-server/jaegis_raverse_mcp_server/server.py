@@ -17,6 +17,7 @@ from .tools_utilities import UtilityTools
 from .tools_system import SystemTools
 from .tools_nlp_validation import NLPValidationTools
 from .errors import RAVERSEMCPError
+from .setup_guide import print_setup_guide, is_first_time_setup
 
 logger = get_logger(__name__)
 
@@ -51,8 +52,14 @@ class MCPServer:
 
             # Initialize database
             if self.config.enable_infrastructure:
-                self.db_manager = DatabaseManager(self.config)
-                self.cache_manager = CacheManager(self.config)
+                try:
+                    self.db_manager = DatabaseManager(self.config)
+                    self.cache_manager = CacheManager(self.config)
+                except Exception as db_error:
+                    # Print user-friendly setup guide for database errors
+                    if is_first_time_setup():
+                        print_setup_guide(str(db_error))
+                    raise
 
             # Initialize tool modules
             if self.config.enable_binary_analysis:
