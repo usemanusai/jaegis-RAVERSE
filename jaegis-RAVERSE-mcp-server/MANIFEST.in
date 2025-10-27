@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include requirements.txt
+include .env.example
+recursive-include jaegis_raverse_mcp_server *.py
+recursive-include tests *.py
+

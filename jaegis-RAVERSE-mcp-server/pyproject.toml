@@ -1,0 +1,133 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jaegis-raverse-mcp-server"
+version = "1.0.0"
+description = "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "RAVERSE Team", email = "team@raverse.ai"}
+]
+maintainers = [
+    {name = "RAVERSE Team", email = "team@raverse.ai"}
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "raverse",
+    "binary-analysis",
+    "reverse-engineering",
+    "ai-agents",
+    "multi-agent",
+    "binary-patching",
+    "security-analysis",
+    "code-embedding",
+    "semantic-search",
+    "knowledge-base",
+    "rag",
+    "web-analysis",
+    "api-reverse-engineering"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://github.com/usemanusai/jaegis-RAVERSE"
+Documentation = "https://github.com/usemanusai/jaegis-RAVERSE/tree/main/jaegis-RAVERSE-mcp-server"
+Repository = "https://github.com/usemanusai/jaegis-RAVERSE.git"
+"Bug Tracker" = "https://github.com/usemanusai/jaegis-RAVERSE/issues"
+Changelog = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/CHANGELOG.md"
+
+dependencies = [
+    "mcp>=0.1.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "psycopg2-binary>=2.9.9",
+    "redis>=5.0.0",
+    "pgvector>=0.2.4",
+    "sentence-transformers>=2.2.2",
+    "structlog>=24.1.0",
+    "prometheus-client>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.0",
+    "black>=23.11.0",
+]
+
+[project.scripts]
+raverse-mcp-server = "jaegis_raverse_mcp_server.server:main"
+
+[tool.setuptools]
+packages = ["jaegis_raverse_mcp_server"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+]
+
+[tool.coverage.run]
+source = ["jaegis_raverse_mcp_server"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+

@@ -1,0 +1,132 @@
+"""Database utilities for RAVERSE MCP Server"""
+
+import psycopg2
+from psycopg2 import pool
+from typing import Optional, List, Dict, Any
+from .config import MCPServerConfig
+from .errors import DatabaseError
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
+
+
+class DatabaseManager:
+    """Manages database connections and operations"""
+    
+    def __init__(self, config: MCPServerConfig):
+        self.config = config
+        self.connection_pool: Optional[pool.ThreadedConnectionPool] = None
+        self._initialize_pool()
+    
+    def _initialize_pool(self) -> None:
+        """Initialize connection pool"""
+        try:
+            self.connection_pool = pool.ThreadedConnectionPool(
+                minconn=1,
+                maxconn=self.config.database_pool_size,
+                dsn=self.config.database_url,
+            )
+            logger.info("Database connection pool initialized", pool_size=self.config.database_pool_size)
+        except psycopg2.Error as e:
+            raise DatabaseError(f"Failed to initialize database pool: {str(e)}")
+    
+    def get_connection(self):
+        """Get a connection from the pool"""
+        if not self.connection_pool:
+            raise DatabaseError("Connection pool not initialized")
+        try:
+            return self.connection_pool.getconn()
+        except pool.PoolError as e:
+            raise DatabaseError(f"Failed to get connection from pool: {str(e)}")
+    
+    def return_connection(self, conn) -> None:
+        """Return a connection to the pool"""
+        if self.connection_pool:
+            self.connection_pool.putconn(conn)
+    
+    def execute_query(
+        self,
+        query: str,
+        params: Optional[tuple] = None,
+        fetch_one: bool = False,
+    ) -> Optional[Any]:
+        """Execute a query and return results"""
+        conn = None
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(query, params or ())
+            
+            if fetch_one:
+                result = cursor.fetchone()
+            else:
+                result = cursor.fetchall()
+            
+            cursor.close()
+            conn.commit()
+            return result
+        except psycopg2.Error as e:
+            if conn:
+                conn.rollback()
+            raise DatabaseError(f"Query execution failed: {str(e)}", {"query": query})
+        finally:
+            if conn:
+                self.return_connection(conn)
+    
+    def execute_update(
+        self,
+        query: str,
+        params: Optional[tuple] = None,
+    ) -> int:
+        """Execute an update query and return affected rows"""
+        conn = None
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(query, params or ())
+            affected_rows = cursor.rowcount
+            cursor.close()
+            conn.commit()
+            return affected_rows
+        except psycopg2.Error as e:
+            if conn:
+                conn.rollback()
+            raise DatabaseError(f"Update execution failed: {str(e)}", {"query": query})
+        finally:
+            if conn:
+                self.return_connection(conn)
+    
+    def vector_search(
+        self,
+        table: str,
+        embedding_column: str,
+        query_embedding: List[float],
+        limit: int = 5,
+        threshold: float = 0.7,
+    ) -> List[Dict[str, Any]]:
+        """Perform vector similarity search"""
+        try:
+            query = f"""
+                SELECT *, 
+                       1 - (embedding <=> %s::vector) as similarity
+                FROM {table}
+                WHERE 1 - (embedding <=> %s::vector) > %s
+                ORDER BY similarity DESC
+                LIMIT %s
+            """
+            results = self.execute_query(
+                query,
+                (query_embedding, query_embedding, threshold, limit),
+            )
+            return results or []
+        except DatabaseError:
+            raise
+        except Exception as e:
+            raise DatabaseError(f"Vector search failed: {str(e)}")
+    
+    def close(self) -> None:
+        """Close all connections in the pool"""
+        if self.connection_pool:
+            self.connection_pool.closeall()
+            logger.info("Database connection pool closed")
+

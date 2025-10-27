@@ -1,0 +1,93 @@
+{
+  "name": "@raverse/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "raverse-mcp-server": "./bin/raverse-mcp-server.js"
+  },
+  "scripts": {
+    "start": "node bin/raverse-mcp-server.js",
+    "dev": "node bin/raverse-mcp-server.js --dev",
+    "setup": "npm run setup:python && npm run setup:env",
+    "setup:python": "python -m venv venv && source venv/bin/activate && pip install -e .",
+    "setup:env": "cp .env.example .env && echo 'Environment file created. Please edit .env with your configuration.'",
+    "test": "pytest tests/ -v",
+    "test:coverage": "pytest tests/ --cov=jaegis_raverse_mcp_server --cov-report=html",
+    "lint": "ruff check . && black --check .",
+    "format": "black . && ruff check --fix .",
+    "type-check": "mypy jaegis_raverse_mcp_server/",
+    "build": "python -m build",
+    "publish:npm": "npm publish --access public",
+    "publish:pypi": "python -m twine upload dist/*",
+    "clean": "rm -rf dist/ build/ *.egg-info .pytest_cache .mypy_cache .ruff_cache"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "raverse",
+    "binary-analysis",
+    "reverse-engineering",
+    "ai-agents",
+    "multi-agent",
+    "binary-patching",
+    "security-analysis",
+    "code-embedding",
+    "semantic-search",
+    "knowledge-base",
+    "rag",
+    "web-analysis",
+    "api-reverse-engineering"
+  ],
+  "author": {
+    "name": "RAVERSE Team",
+    "email": "team@raverse.ai"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/usemanusai/jaegis-RAVERSE.git",
+    "directory": "jaegis-RAVERSE-mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/usemanusai/jaegis-RAVERSE/issues"
+  },
+  "homepage": "https://github.com/usemanusai/jaegis-RAVERSE/tree/main/jaegis-RAVERSE-mcp-server",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.13"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "jaegis_raverse_mcp_server/",
+    "tests/",
+    "pyproject.toml",
+    "requirements.txt",
+    "MANIFEST.in",
+    ".env.example",
+    "README.md",
+    "LICENSE",
+    "INSTALLATION.md",
+    "MCP_CLIENT_SETUP.md",
+    "QUICKSTART.md",
+    "INTEGRATION_GUIDE.md",
+    "DEPLOYMENT.md",
+    "TOOLS_REGISTRY_COMPLETE.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "dependencies": {},
+  "optionalDependencies": {},
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/usemanusai/jaegis-RAVERSE"
+  }
+}
+

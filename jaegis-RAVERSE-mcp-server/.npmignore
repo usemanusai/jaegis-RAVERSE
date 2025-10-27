@@ -1,0 +1,101 @@
+# Development files
+.git
+.gitignore
+.github
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Linting
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Documentation
+docs/
+*.md
+!README.md
+!LICENSE
+
+# Configuration
+.env
+.env.local
+.env.*.local
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Misc
+.editorconfig
+.prettierrc
+.eslintrc
+tsconfig.json
+jest.config.js
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+VERIFICATION_CHECKLIST.md
+COMPLETION_STATUS.md
+FINAL_STATUS.md
+ALL_35_TOOLS_IMPLEMENTED.md
+IMPLEMENTATION_SUMMARY.md
+TOOLS_REGISTRY.md
+TOOLS_REGISTRY_COMPLETE.md
+
