@@ -49,14 +49,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Security",
 ]
-
-[project.urls]
-Homepage = "https://github.com/usemanusai/jaegis-RAVERSE"
-Documentation = "https://github.com/usemanusai/jaegis-RAVERSE/tree/main/jaegis-RAVERSE-mcp-server"
-Repository = "https://github.com/usemanusai/jaegis-RAVERSE.git"
-"Bug Tracker" = "https://github.com/usemanusai/jaegis-RAVERSE/issues"
-Changelog = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/CHANGELOG.md"
-
 dependencies = [
     "mcp>=0.1.0",
     "pydantic>=2.5.0",
@@ -70,6 +62,13 @@ dependencies = [
     "structlog>=24.1.0",
     "prometheus-client>=0.19.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/usemanusai/jaegis-RAVERSE"
+Documentation = "https://github.com/usemanusai/jaegis-RAVERSE/tree/main/jaegis-RAVERSE-mcp-server"
+Repository = "https://github.com/usemanusai/jaegis-RAVERSE.git"
+"Bug Tracker" = "https://github.com/usemanusai/jaegis-RAVERSE/issues"
+Changelog = "https://github.com/usemanusai/jaegis-RAVERSE/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
