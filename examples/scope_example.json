@@ -1,0 +1,55 @@
+{
+  "description": "Example scope configuration for RAVERSE Online",
+  "authorization_date": "2025-10-25",
+  "authorized_by": "Security Team",
+  "authorization_type": "Authorized Penetration Test",
+  "allowed_domains": [
+    "example.com",
+    "api.example.com",
+    "app.example.com"
+  ],
+  "allowed_paths": [
+    "/api/",
+    "/app/",
+    "/admin/"
+  ],
+  "excluded_paths": [
+    "/admin/delete",
+    "/admin/reset",
+    "/payment/"
+  ],
+  "allowed_methods": [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "PATCH"
+  ],
+  "rate_limits": {
+    "requests_per_second": 10,
+    "max_concurrent_requests": 5
+  },
+  "restrictions": {
+    "no_data_exfiltration": true,
+    "no_denial_of_service": true,
+    "no_account_creation": true,
+    "no_data_modification": false,
+    "no_payment_testing": true
+  },
+  "contact_info": {
+    "name": "Security Team",
+    "email": "security@example.com",
+    "phone": "+1-555-0123"
+  },
+  "legal_framework": {
+    "jurisdiction": "US",
+    "applicable_laws": [
+      "CFAA",
+      "GDPR",
+      "CCPA"
+    ],
+    "disclosure_timeline_days": 90
+  },
+  "notes": "This is an authorized security assessment. All activities must comply with the scope and legal framework."
+}
+

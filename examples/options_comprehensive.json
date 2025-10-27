@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "name": "Comprehensive Options Example",
+    "description": "Complete execution options for RAVERSE Online analysis",
+    "created": "2025-10-25",
+    "version": "1.0.0"
+  },
+  
+  "execution": {
+    "mode": "full_pipeline",
+    "parallel_execution": true,
+    "max_workers": 4,
+    "timeout_seconds": 3600,
+    "retry_attempts": 3,
+    "retry_backoff": "exponential"
+  },
+  
+  "reconnaissance": {
+    "enabled": true,
+    "tech_stack_detection": true,
+    "endpoint_discovery": true,
+    "auth_flow_mapping": true,
+    "header_collection": true,
+    "cookie_analysis": true,
+    "javascript_detection": true,
+    "wasm_detection": true
+  },
+  
+  "traffic_analysis": {
+    "enabled": true,
+    "capture_duration": 300,
+    "capture_filter": "tcp port 80 or tcp port 443",
+    "browser_automation": true,
+    "proxy_interception": true,
+    "ssl_interception": true,
+    "certificate_pinning_bypass": false,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  },
+  
+  "javascript_analysis": {
+    "enabled": true,
+    "deobfuscation": true,
+    "ast_parsing": true,
+    "api_call_extraction": true,
+    "function_extraction": true,
+    "suspicious_pattern_detection": true,
+    "dependency_extraction": true,
+    "minification_detection": true
+  },
+  
+  "api_analysis": {
+    "enabled": true,
+    "endpoint_mapping": true,
+    "parameter_extraction": true,
+    "authentication_analysis": true,
+    "schema_inference": true,
+    "openapi_generation": true,
+    "security_issue_detection": true
+  },
+  
+  "wasm_analysis": {
+    "enabled": true,
+    "binary_validation": true,
+    "decompilation": true,
+    "function_extraction": true,
+    "call_graph_generation": true,
+    "suspicious_function_detection": true
+  },
+  
+  "ai_analysis": {
+    "enabled": true,
+    "model": "meta-llama/llama-3.3-70b-instruct:free",
+    "analysis_types": [
+      "code_review",
+      "vulnerability_analysis",
+      "pattern_detection"
+    ],
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "retry_attempts": 3
+  },
+  
+  "security_scanning": {
+    "enabled": true,
+    "vulnerability_scanning": true,
+    "security_header_analysis": true,
+    "ssl_tls_analysis": true,
+    "dependency_checking": true,
+    "code_analysis": true,
+    "owasp_top_10_check": true,
+    "cwe_detection": true
+  },
+  
+  "validation": {
+    "enabled": true,
+    "sql_injection_validation": true,
+    "xss_validation": true,
+    "csrf_validation": true,
+    "path_traversal_validation": true,
+    "evidence_capture": true,
+    "screenshot_capture": true,
+    "video_recording": false
+  },
+  
+  "reporting": {
+    "enabled": true,
+    "formats": [
+      "json",
+      "markdown",
+      "html",
+      "pdf"
+    ],
+    "include_executive_summary": true,
+    "include_detailed_findings": true,
+    "include_metrics": true,
+    "include_recommendations": true,
+    "include_evidence": true,
+    "include_screenshots": true,
+    "include_poc_steps": true,
+    "anonymize_sensitive_data": true
+  },
+  
+  "monitoring": {
+    "enabled": true,
+    "prometheus_metrics": true,
+    "grafana_dashboards": true,
+    "jaeger_tracing": true,
+    "log_level": "INFO",
+    "log_file": "raverse_online.log",
+    "metrics_export_interval": 60
+  },
+  
+  "performance": {
+    "cache_results": true,
+    "cache_ttl": 3600,
+    "database_persistence": true,
+    "batch_processing": true,
+    "batch_size": 100,
+    "compression": true
+  },
+  
+  "advanced": {
+    "custom_headers": {
+      "X-Custom-Header": "value"
+    },
+    "proxy_settings": {
+      "enabled": false,
+      "host": "127.0.0.1",
+      "port": 8080,
+      "username": null,
+      "password": null
+    },
+    "ssl_verification": true,
+    "follow_redirects": true,
+    "max_redirects": 5,
+    "dns_resolution": "system",
+    "ipv6_enabled": true
+  },
+  
+  "output": {
+    "output_directory": "./results",
+    "create_subdirectory": true,
+    "save_raw_data": true,
+    "save_artifacts": true,
+    "save_logs": true,
+    "compress_output": false,
+    "upload_results": false
+  },
+  
+  "notifications": {
+    "enabled": false,
+    "email_on_completion": false,
+    "email_on_critical_finding": false,
+    "slack_webhook": null,
+    "webhook_url": null
+  }
+}
+

@@ -1,0 +1,153 @@
+{
+  "metadata": {
+    "name": "Comprehensive Scope Example",
+    "description": "Complete scope configuration for authorized security testing",
+    "created": "2025-10-25",
+    "version": "1.0.0",
+    "authorization_date": "2025-10-25",
+    "authorization_expiry": "2026-10-25",
+    "authorized_by": "Security Team",
+    "contact": "security@example.com"
+  },
+  
+  "authorization": {
+    "type": "explicit",
+    "status": "approved",
+    "scope_type": "full_application",
+    "testing_type": "authorized_security_assessment",
+    "responsible_disclosure": true,
+    "bug_bounty_program": true
+  },
+  
+  "targets": {
+    "primary": {
+      "domain": "example.com",
+      "protocol": "https",
+      "port": 443,
+      "base_url": "https://example.com"
+    },
+    "subdomains": [
+      "api.example.com",
+      "admin.example.com",
+      "staging.example.com"
+    ],
+    "excluded_domains": [
+      "payment.example.com",
+      "internal.example.com"
+    ]
+  },
+  
+  "paths": {
+    "allowed_paths": [
+      "/",
+      "/api/*",
+      "/admin/*",
+      "/user/*",
+      "/dashboard/*"
+    ],
+    "excluded_paths": [
+      "/admin/delete",
+      "/admin/purge",
+      "/system/*",
+      "/internal/*",
+      "*.pdf",
+      "*.zip"
+    ],
+    "max_depth": 5,
+    "follow_redirects": true
+  },
+  
+  "authentication": {
+    "required": true,
+    "methods": [
+      "oauth2",
+      "jwt",
+      "session_cookie"
+    ],
+    "credentials": {
+      "username": "test_user",
+      "password": "test_password_hash",
+      "api_key": "test_api_key_hash"
+    },
+    "mfa_enabled": false
+  },
+  
+  "rate_limiting": {
+    "enabled": true,
+    "requests_per_second": 5,
+    "requests_per_minute": 100,
+    "concurrent_requests": 3,
+    "backoff_strategy": "exponential"
+  },
+  
+  "restrictions": {
+    "no_data_modification": false,
+    "no_data_deletion": true,
+    "no_user_account_creation": true,
+    "no_payment_processing": true,
+    "no_admin_functions": true,
+    "no_database_access": true,
+    "no_file_upload": false,
+    "no_file_download": false
+  },
+  
+  "sensitive_data": {
+    "pii_handling": "do_not_extract",
+    "credit_card_handling": "do_not_extract",
+    "api_keys_handling": "do_not_extract",
+    "passwords_handling": "do_not_extract",
+    "tokens_handling": "do_not_extract"
+  },
+  
+  "compliance": {
+    "gdpr_compliant": true,
+    "ccpa_compliant": true,
+    "hipaa_compliant": false,
+    "pci_dss_compliant": false,
+    "sox_compliant": false
+  },
+  
+  "testing_scope": {
+    "reconnaissance": true,
+    "traffic_analysis": true,
+    "javascript_analysis": true,
+    "api_testing": true,
+    "wasm_analysis": true,
+    "security_scanning": true,
+    "vulnerability_validation": true,
+    "penetration_testing": false
+  },
+  
+  "tools_allowed": [
+    "wappalyzer",
+    "retire.js",
+    "mitmproxy",
+    "playwright",
+    "burp_suite",
+    "owasp_zap",
+    "openapi_tools"
+  ],
+  
+  "tools_prohibited": [
+    "metasploit",
+    "sqlmap_aggressive",
+    "nikto_aggressive",
+    "nessus_intrusive"
+  ],
+  
+  "reporting": {
+    "format": "json",
+    "include_evidence": true,
+    "include_screenshots": true,
+    "include_poc": true,
+    "anonymize_data": true,
+    "send_to": "security@example.com"
+  },
+  
+  "incident_response": {
+    "critical_vulnerability_contact": "security@example.com",
+    "response_time_sla": "24_hours",
+    "escalation_contact": "ciso@example.com"
+  }
+}
+

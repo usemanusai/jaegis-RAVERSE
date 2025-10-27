@@ -1,0 +1,288 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:17-alpine
+    container_name: raverse-postgres
+    environment:
+      POSTGRES_USER: raverse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-raverse_secure_password}
+      POSTGRES_DB: raverse_online
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raverse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - raverse-network
+
+  # Redis Cache
+  redis:
+    image: redis:8.2-alpine
+    container_name: raverse-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - raverse-network
+
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: raverse-prometheus
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - raverse-network
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: raverse-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - raverse-network
+
+  # Jaeger Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: raverse-jaeger
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - raverse-network
+
+  # Orchestration Agent
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: orchestrator
+    container_name: raverse-orchestrator
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-meta-llama/llama-3.3-70b-instruct:free}
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    networks:
+      - raverse-network
+    volumes:
+      - ./agents:/app/agents
+      - ./results:/app/results
+
+  # Reconnaissance Agent
+  recon-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-recon-agent
+    environment:
+      AGENT_TYPE: RECON
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # Traffic Interception Agent
+  traffic-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-traffic-agent
+    environment:
+      AGENT_TYPE: TRAFFIC
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # JavaScript Analysis Agent
+  js-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-js-agent
+    environment:
+      AGENT_TYPE: JS_ANALYSIS
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # API Reverse Engineering Agent
+  api-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-api-agent
+    environment:
+      AGENT_TYPE: API_REENG
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # Security Analysis Agent
+  security-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-security-agent
+    environment:
+      AGENT_TYPE: SECURITY
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # Reporting Agent
+  reporting-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-reporting-agent
+    environment:
+      AGENT_TYPE: REPORTING
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - orchestrator
+    networks:
+      - raverse-network
+
+  # Deep Research Topic Enhancer Agent
+  deep-research-topic-enhancer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-deep-research-topic-enhancer
+    environment:
+      AGENT_TYPE: DEEP_RESEARCH_TOPIC_ENHANCER
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    depends_on:
+      - orchestrator
+      - postgres
+      - redis
+    networks:
+      - raverse-network
+
+  # Deep Research Web Researcher Agent
+  deep-research-web-researcher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-deep-research-web-researcher
+    environment:
+      AGENT_TYPE: DEEP_RESEARCH_WEB_RESEARCHER
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY}
+    depends_on:
+      - orchestrator
+      - postgres
+      - redis
+    networks:
+      - raverse-network
+
+  # Deep Research Content Analyzer Agent
+  deep-research-content-analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent
+    container_name: raverse-deep-research-content-analyzer
+    environment:
+      AGENT_TYPE: DEEP_RESEARCH_CONTENT_ANALYZER
+      ORCHESTRATOR_URL: http://orchestrator:8000
+      POSTGRES_URL: postgresql://raverse:${POSTGRES_PASSWORD:-raverse_secure_password}@postgres:5432/raverse_online
+      REDIS_URL: redis://redis:6379
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    depends_on:
+      - orchestrator
+      - postgres
+      - redis
+    networks:
+      - raverse-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  raverse-network:
+    driver: bridge
+

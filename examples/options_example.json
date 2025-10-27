@@ -1,0 +1,74 @@
+{
+  "description": "Example execution options for RAVERSE Online",
+  "recon": {
+    "enabled": true,
+    "timeout_seconds": 30,
+    "follow_redirects": true,
+    "verify_ssl": false
+  },
+  "traffic": {
+    "enabled": true,
+    "duration_seconds": 60,
+    "capture_headers": true,
+    "capture_bodies": true,
+    "filter_static": true
+  },
+  "js_analysis": {
+    "enabled": true,
+    "deobfuscate": true,
+    "extract_api_calls": true,
+    "detect_suspicious_patterns": true
+  },
+  "api_reeng": {
+    "enabled": true,
+    "generate_openapi": true,
+    "generate_postman": false,
+    "analyze_authentication": true
+  },
+  "wasm_analysis": {
+    "enabled": true,
+    "decompile": true,
+    "build_call_graph": true
+  },
+  "ai_copilot": {
+    "enabled": true,
+    "analysis_types": [
+      "code_review",
+      "vulnerability_analysis",
+      "pattern_detection"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "security": {
+    "enabled": true,
+    "check_headers": true,
+    "check_ssl_tls": true,
+    "check_dependencies": true,
+    "owasp_top_10": true
+  },
+  "validation": {
+    "enabled": true,
+    "validate_all": true,
+    "capture_evidence": true,
+    "screenshot_on_success": true
+  },
+  "reporting": {
+    "enabled": true,
+    "format": "markdown",
+    "include_executive_summary": true,
+    "include_detailed_findings": true,
+    "include_recommendations": true,
+    "include_metrics": true
+  },
+  "performance": {
+    "parallel_agents": true,
+    "max_concurrent_tasks": 5,
+    "timeout_seconds": 300
+  },
+  "logging": {
+    "level": "INFO",
+    "verbose": false,
+    "save_logs": true
+  }
+}
+
