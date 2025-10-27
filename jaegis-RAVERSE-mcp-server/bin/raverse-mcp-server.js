@@ -112,8 +112,21 @@ function checkPackageInstalled() {
   try {
     const { execSync } = require('child_process');
     const python = getPythonExecutable();
-    execSync(`${python} -c "import jaegis_raverse_mcp_server"`, { stdio: 'pipe' });
-    return true;
+
+    // Try to import the package
+    try {
+      execSync(`${python} -c "import jaegis_raverse_mcp_server"`, { stdio: 'pipe' });
+      return true;
+    } catch (e) {
+      // If not installed globally, try to install it via pip
+      console.log('Installing RAVERSE MCP Server package...');
+      try {
+        execSync(`${python} -m pip install jaegis-raverse-mcp-server`, { stdio: 'inherit' });
+        return true;
+      } catch (installError) {
+        return false;
+      }
+    }
   } catch (e) {
     return false;
   }
@@ -130,8 +143,11 @@ function main() {
 
   // Check if package is installed
   if (!checkPackageInstalled()) {
-    console.error('ERROR: RAVERSE MCP Server package is not installed');
-    console.error('Please run: npm run setup');
+    console.error('ERROR: RAVERSE MCP Server package could not be installed');
+    console.error('Please install it manually:');
+    console.error('  pip install jaegis-raverse-mcp-server');
+    console.error('Or use npm:');
+    console.error('  npm install -g raverse-mcp-server');
     process.exit(1);
   }
 
