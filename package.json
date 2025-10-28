@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "raverse-mcp-server": "^1.0.4"
+  }
+}
