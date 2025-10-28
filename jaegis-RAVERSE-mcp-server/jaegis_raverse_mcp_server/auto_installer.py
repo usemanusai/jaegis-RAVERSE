@@ -148,7 +148,7 @@ class AutoInstaller:
 
 # Server Settings
 SERVER_NAME=jaegis-raverse-mcp-server
-SERVER_VERSION=1.0.5
+SERVER_VERSION=1.0.10
 LOG_LEVEL=INFO
 
 # Database Settings

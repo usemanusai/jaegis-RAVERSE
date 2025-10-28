@@ -210,7 +210,7 @@ class SetupWizard:
 
 # Server Settings
 SERVER_NAME=jaegis-raverse-mcp-server
-SERVER_VERSION=1.0.4
+SERVER_VERSION=1.0.10
 LOG_LEVEL=INFO
 
 # Database Settings
@@ -394,7 +394,7 @@ REQUEST_TIMEOUT_SECONDS=60
 
 # Server Settings
 SERVER_NAME=jaegis-raverse-mcp-server
-SERVER_VERSION=1.0.4
+SERVER_VERSION=1.0.10
 LOG_LEVEL=INFO
 
 # Database Settings
