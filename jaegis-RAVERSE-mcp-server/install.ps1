@@ -40,19 +40,19 @@ function Write-Log {
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "[✓] $Message" -ForegroundColor Green
+    Write-Host "[OK] $Message" -ForegroundColor Green
     Write-Log $Message "SUCCESS"
 }
 
 function Write-Error-Custom {
     param([string]$Message)
-    Write-Host "[✗] $Message" -ForegroundColor Red
+    Write-Host "[ERROR] $Message" -ForegroundColor Red
     Write-Log $Message "ERROR"
 }
 
 function Write-Warning-Custom {
     param([string]$Message)
-    Write-Host "[⚠] $Message" -ForegroundColor Yellow
+    Write-Host "[WARNING] $Message" -ForegroundColor Yellow
     Write-Log $Message "WARNING"
 }
 
@@ -260,8 +260,8 @@ function Main {
     Write-Log "Next steps:"
     Write-Log "  1. Start the server: python -m jaegis_raverse_mcp_server.server"
     Write-Log "  2. Or use NPM: npx raverse-mcp-server"
-    Write-Log "  3. Check logs: Get-Content $LogFile -Tail 50"
-    
+    Write-Log "  3. Check logs: Get-Content installation.log -Tail 50"
+
     exit 0
 }
 

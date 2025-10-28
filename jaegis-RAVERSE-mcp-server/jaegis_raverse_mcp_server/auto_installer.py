@@ -20,15 +20,20 @@ from pathlib import Path
 from typing import Optional, Tuple
 from datetime import datetime
 
-# Setup logging
+# Setup logging with UTF-8 encoding for Windows compatibility
 log_file = Path(__file__).parent.parent / "installation.log"
+
+# Configure file handler with UTF-8 encoding
+file_handler = logging.FileHandler(log_file, encoding='utf-8')
+file_handler.setFormatter(logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s'))
+
+# Configure stream handler with error handling
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s'))
+
 logging.basicConfig(
     level=logging.INFO,
-    format='[%(asctime)s] [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    handlers=[file_handler, stream_handler]
 )
 logger = logging.getLogger(__name__)
 
@@ -58,7 +63,7 @@ class AutoInstaller:
         except Exception:
             return False
     
-    def _run_command(self, cmd: list, description: str) -> Tuple[bool, str]:
+    def _run_command(self, cmd: list, description: str, timeout: int = 600) -> Tuple[bool, str]:
         """Run a shell command and return success status and output."""
         try:
             logger.info(f"Running: {description}")
@@ -66,19 +71,19 @@ class AutoInstaller:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=timeout
             )
             if result.returncode == 0:
-                logger.info(f"✓ {description}")
+                logger.info(f"[OK] {description}")
                 return True, result.stdout
             else:
-                logger.error(f"✗ {description}: {result.stderr}")
+                logger.error(f"[FAILED] {description}: {result.stderr}")
                 return False, result.stderr
         except subprocess.TimeoutExpired:
-            logger.error(f"✗ {description}: Timeout")
+            logger.error(f"[TIMEOUT] {description}: Command timed out after {timeout}s")
             return False, "Command timeout"
         except Exception as e:
-            logger.error(f"✗ {description}: {str(e)}")
+            logger.error(f"[ERROR] {description}: {str(e)}")
             return False, str(e)
     
     def _check_port(self, port: int) -> bool:
@@ -96,10 +101,10 @@ class AutoInstaller:
         start_time = time.time()
         while time.time() - start_time < timeout:
             if self._check_port(port):
-                logger.info(f"✓ Service available on port {port}")
+                logger.info(f"[OK] Service available on port {port}")
                 return True
             time.sleep(2)
-        logger.error(f"✗ Service not available on port {port} after {timeout}s")
+        logger.error(f"[FAILED] Service not available on port {port} after {timeout}s")
         return False
     
     def setup_with_docker(self) -> bool:
@@ -170,12 +175,12 @@ MAX_CONCURRENT_TASKS=10
 CACHE_TTL_SECONDS=3600
 REQUEST_TIMEOUT_SECONDS=60
 """
-            with open(self.env_file, "w") as f:
+            with open(self.env_file, "w", encoding='utf-8') as f:
                 f.write(env_content)
-            logger.info(f"✓ Created .env file at {self.env_file}")
+            logger.info(f"[OK] Created .env file at {self.env_file}")
             return True
         except Exception as e:
-            logger.error(f"✗ Failed to create .env file: {e}")
+            logger.error(f"[FAILED] Failed to create .env file: {e}")
             return False
     
     def verify_database_connection(self) -> bool:
@@ -191,15 +196,15 @@ REQUEST_TIMEOUT_SECONDS=60
                 database="raverse"
             )
             conn.close()
-            logger.info("✓ PostgreSQL connection verified")
+            logger.info("[OK] PostgreSQL connection verified")
             return True
         except ImportError:
             logger.warning("psycopg2 not available, skipping database verification")
             return True
         except Exception as e:
-            logger.error(f"✗ Database connection failed: {e}")
+            logger.error(f"[FAILED] Database connection failed: {e}")
             return False
-    
+
     def verify_redis_connection(self) -> bool:
         """Verify Redis connection."""
         try:
@@ -207,13 +212,13 @@ REQUEST_TIMEOUT_SECONDS=60
             logger.info("Verifying Redis connection...")
             r = redis.Redis(host='localhost', port=6379, decode_responses=True)
             r.ping()
-            logger.info("✓ Redis connection verified")
+            logger.info("[OK] Redis connection verified")
             return True
         except ImportError:
             logger.warning("redis not available, skipping Redis verification")
             return True
         except Exception as e:
-            logger.error(f"✗ Redis connection failed: {e}")
+            logger.error(f"[FAILED] Redis connection failed: {e}")
             return False
     
     def run(self) -> int:
@@ -243,7 +248,7 @@ REQUEST_TIMEOUT_SECONDS=60
                 logger.warning("Redis verification failed, continuing anyway...")
             
             logger.info("=" * 70)
-            logger.info("✓ Automated installation completed successfully!")
+            logger.info("[OK] Automated installation completed successfully!")
             logger.info("=" * 70)
             logger.info(f"Configuration saved to: {self.env_file}")
             logger.info("You can now start the server with:")
