@@ -13,6 +13,7 @@ import secrets
 import socket
 import subprocess
 import logging
+import argparse
 from pathlib import Path
 from typing import Optional, Tuple
 from datetime import datetime
@@ -43,7 +44,11 @@ class SetupWizard:
         self.db_port: int = 5432
         self.redis_port: int = 6379
         self.api_key: Optional[str] = None
-        
+
+        # Connection URLs (for non-interactive mode)
+        self.db_url: Optional[str] = None
+        self.redis_url: Optional[str] = None
+
         # Setup signal handler for Ctrl+C
         signal.signal(signal.SIGINT, self._signal_handler)
 
@@ -454,12 +459,44 @@ REQUEST_TIMEOUT_SECONDS=60
             self.run_manual_setup()
 
 
-def run_setup_wizard():
-    """Entry point for setup wizard."""
+def run_setup_wizard(non_interactive: bool = False, db_url: Optional[str] = None,
+                     redis_url: Optional[str] = None, api_key: Optional[str] = None):
+    """Entry point for setup wizard.
+
+    Args:
+        non_interactive: If True, use default values without prompting
+        db_url: Database URL (used in non-interactive mode)
+        redis_url: Redis URL (used in non-interactive mode)
+        api_key: OpenRouter API key (used in non-interactive mode)
+    """
     wizard = SetupWizard()
-    wizard.run()
+
+    if non_interactive:
+        # Non-interactive mode - use provided values or defaults
+        wizard.db_url = db_url or "postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse"
+        wizard.redis_url = redis_url or "redis://localhost:6379/0"
+        wizard.api_key = api_key or os.getenv("OPENROUTER_API_KEY", "sk-or-v1-placeholder")
+        wizard._create_env_file()
+        wizard._log("Non-interactive setup completed successfully")
+        print(f"{Fore.GREEN}✓ Configuration created successfully!{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Configuration saved to: {wizard.env_file}{Style.RESET_ALL}")
+    else:
+        wizard.run()
 
 
 if __name__ == "__main__":
-    run_setup_wizard()
+    import argparse
+    parser = argparse.ArgumentParser(description="RAVERSE MCP Server Setup Wizard")
+    parser.add_argument("--non-interactive", action="store_true", help="Run in non-interactive mode")
+    parser.add_argument("--db-url", help="Database URL (for non-interactive mode)")
+    parser.add_argument("--redis-url", help="Redis URL (for non-interactive mode)")
+    parser.add_argument("--api-key", help="OpenRouter API key (for non-interactive mode)")
+
+    args = parser.parse_args()
+    run_setup_wizard(
+        non_interactive=args.non_interactive,
+        db_url=args.db_url,
+        redis_url=args.redis_url,
+        api_key=args.api_key
+    )
 

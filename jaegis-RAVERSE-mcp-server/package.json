@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node bin/raverse-mcp-server.js",
     "dev": "node bin/raverse-mcp-server.js --dev",
+    "install:auto": "python -m jaegis_raverse_mcp_server.auto_installer",
     "setup": "npm run setup:python && npm run setup:env",
     "setup:python": "python -m venv venv && source venv/bin/activate && pip install -e .",
     "setup:env": "cp .env.example .env && echo 'Environment file created. Please edit .env with your configuration.'",
