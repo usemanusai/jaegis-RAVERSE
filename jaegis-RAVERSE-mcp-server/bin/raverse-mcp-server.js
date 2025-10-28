@@ -121,7 +121,8 @@ function checkPackageInstalled() {
       // If not installed globally, try to install it via pip
       console.log('Installing RAVERSE MCP Server package...');
       try {
-        execSync(`${python} -m pip install jaegis-raverse-mcp-server`, { stdio: 'inherit' });
+        // Install specific version to match NPM package version
+        execSync(`${python} -m pip install jaegis-raverse-mcp-server==${VERSION}`, { stdio: 'inherit' });
         return true;
       } catch (installError) {
         return false;
