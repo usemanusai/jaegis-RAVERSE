@@ -112,25 +112,31 @@ class AutoInstaller:
         logger.info("=" * 70)
         logger.info("RAVERSE MCP Server - Automated Installation (Docker)")
         logger.info("=" * 70)
-        
-        # Start Docker Compose services
+
+        # Start only PostgreSQL and Redis services (skip raverse-app build)
+        logger.info("Starting PostgreSQL and Redis services...")
         success, _ = self._run_command(
-            ["docker-compose", "up", "-d"],
-            "Starting Docker Compose services"
+            ["docker-compose", "up", "-d", "postgres", "redis"],
+            "Starting Docker Compose services (postgres, redis)",
+            timeout=600
         )
         if not success:
+            logger.error("[FAILED] Could not start Docker services")
             return False
-        
+
         # Wait for PostgreSQL
         logger.info("Waiting for PostgreSQL to be ready...")
-        if not self._wait_for_service(5432):
+        if not self._wait_for_service(5432, timeout=60):
+            logger.error("[FAILED] PostgreSQL did not become ready")
             return False
-        
+
         # Wait for Redis
         logger.info("Waiting for Redis to be ready...")
-        if not self._wait_for_service(6379):
+        if not self._wait_for_service(6379, timeout=60):
+            logger.error("[FAILED] Redis did not become ready")
             return False
-        
+
+        logger.info("[OK] Docker services started successfully")
         return True
     
     def create_env_file(self) -> bool:
