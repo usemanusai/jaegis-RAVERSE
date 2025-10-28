@@ -1,6 +1,6 @@
 {
   "name": "raverse-mcp-server",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools, NPX/NPM/PyPI support, and 20+ client configurations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -85,8 +85,9 @@
   "devDependencies": {
     "@types/node": "^20.0.0"
   },
-  "dependencies": {},
-  "optionalDependencies": {},
+  "dependencies": {
+    "raverse-mcp-server": "^1.0.9"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
