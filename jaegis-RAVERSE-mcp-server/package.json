@@ -1,6 +1,6 @@
 {
   "name": "raverse-mcp-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

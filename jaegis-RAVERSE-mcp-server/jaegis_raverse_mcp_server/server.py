@@ -2,6 +2,7 @@
 
 import sys
 import asyncio
+from pathlib import Path
 from typing import Any, Dict, Optional
 from .config import get_config, MCPServerConfig
 from .logging_config import setup_logging, get_logger
@@ -18,6 +19,7 @@ from .tools_system import SystemTools
 from .tools_nlp_validation import NLPValidationTools
 from .errors import RAVERSEMCPError
 from .setup_guide import print_setup_guide, is_first_time_setup
+from .setup_wizard import run_setup_wizard
 
 logger = get_logger(__name__)
 
@@ -44,6 +46,14 @@ class MCPServer:
     def _initialize(self) -> None:
         """Initialize server components"""
         try:
+            # Check if .env file exists, if not run setup wizard
+            env_file = Path(__file__).parent.parent / ".env"
+            if not env_file.exists():
+                logger.info("No .env file found. Starting setup wizard...")
+                run_setup_wizard()
+                # Reload config after setup wizard completes
+                self.config = get_config()
+
             logger.info(
                 "Initializing RAVERSE MCP Server",
                 version=self.config.server_version,
