@@ -12,7 +12,7 @@ class MCPServerConfig(BaseSettings):
 
     # Server settings
     server_name: str = Field(default="jaegis-raverse-mcp-server", description="MCP server name")
-    server_version: str = Field(default="1.0.4", description="MCP server version")
+    server_version: str = Field(default="1.0.9", description="MCP server version")
     log_level: str = Field(default="INFO", description="Logging level")
 
     # Database settings
