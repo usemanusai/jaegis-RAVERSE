@@ -48,7 +48,7 @@ class AutoInstaller:
         self.env_file = self.package_dir / ".env"
         self.docker_available = self._check_docker()
         self.db_url = "postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse"
-        self.redis_url = "redis://localhost:6379/0"
+        self.redis_url = "redis://:raverse_redis_password_2025@localhost:6379/0"
         self.api_key = os.getenv("OPENROUTER_API_KEY", "sk-or-v1-placeholder-key")
         
     def _check_docker(self) -> bool:
