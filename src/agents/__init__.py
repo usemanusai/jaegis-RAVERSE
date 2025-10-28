@@ -37,3 +37,19 @@ from .online_rag_orchestrator_agent import RAGOrchestratorAgent
 from .online_daa_agent import DAAAgent
 from .online_lima_agent import LIMAAgent
 
+# AI Agent Pipeline System
+from .ai_agent_pipeline import (
+    AgentRegistry, TaskQueue, PipelineExecutor, AgentTask,
+    ExecutionResult, AgentState, PipelinePhase
+)
+from .pipeline_orchestrator import PipelineOrchestrator, PipelineConfig, PipelineExecution
+from .pipeline_memory import PipelineMemory, ContextManager, StateRecovery, MemoryLayer
+from .pipeline_error_handling import (
+    ErrorHandler, ErrorSeverity, ErrorRecoveryStrategy, CircuitBreaker,
+    ErrorRecoveryManager, RetryPolicy, FallbackHandler
+)
+from .pipeline_tool_integration import (
+    ToolRegistry, ToolExecutor, ToolDefinition, ToolChain, ToolExecutionResult
+)
+from .mcp_pipeline_integration import MCPPipelineIntegration
+

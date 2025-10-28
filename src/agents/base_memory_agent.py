@@ -6,7 +6,7 @@ Provides memory context management for all agents.
 
 import logging
 from typing import Dict, Any, Optional
-from agents.online_base_agent import OnlineBaseAgent
+from .online_base_agent import OnlineBaseAgent
 
 logger = logging.getLogger(__name__)
 

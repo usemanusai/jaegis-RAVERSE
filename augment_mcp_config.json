@@ -1,0 +1,147 @@
+{
+  "mcpServers": {
+    "jaegis-github-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "jaegis-github-mcp-server@latest"
+      ],
+      "env": {
+        "GITHUB_AUTH_MODE": "app",
+        "GITHUB_APP_ID": "1897087",
+        "GITHUB_APP_INSTALLATION_ID": "84432002",
+        "GITHUB_APP_PRIVATE_KEY_PATH": "C:\\Users\\Lenovo ThinkPad T480\\.mcp\\jaegis-api-handler.2025-09-04.private-key.pem",
+        "GITHUB_USERNAME": "usemanusai",
+        "GITHUB_EMAIL": "use.manus.ai@gmail.com",
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "NPM_CONFIG_UPDATE_NOTIFIER": "false",
+        "NPM_CONFIG_AUDIT": "false",
+        "NPM_CONFIG_FUND": "false",
+        "NPM_CONFIG_LOGLEVEL": "silent",
+        "npm_config_loglevel": "silent",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1",
+        "DOTENV_DISABLE": "true",
+        "DOTENV_CONFIG_SILENT": "true",
+        "NODE_NO_WARNINGS": "1"
+      }
+    },
+    "jaegis-npm-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "jaegis-npm-mcp-server@latest"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "NPM_CONFIG_UPDATE_NOTIFIER": "false",
+        "NPM_CONFIG_AUDIT": "false",
+        "NPM_CONFIG_FUND": "false",
+        "NPM_CONFIG_LOGLEVEL": "silent",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "jaegis-pypi-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "jaegis-pypi-mcp-server@latest"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "NPM_CONFIG_UPDATE_NOTIFIER": "false",
+        "NPM_CONFIG_AUDIT": "false",
+        "NPM_CONFIG_FUND": "false",
+        "NPM_CONFIG_LOGLEVEL": "silent",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "raverse-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "raverse-mcp-server@latest"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "NPM_CONFIG_UPDATE_NOTIFIER": "false",
+        "NPM_CONFIG_AUDIT": "false",
+        "NPM_CONFIG_FUND": "false",
+        "NPM_CONFIG_LOGLEVEL": "silent",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "tavily-remote-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.tavily.com"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "hyperbrowser-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.hyperbrowser.ai"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "context7-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.context7.io"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    },
+    "convex-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.convex.dev"
+      ],
+      "env": {
+        "CI": "1",
+        "NO_UPDATE_NOTIFIER": "1",
+        "FORCE_COLOR": "0",
+        "TERM": "dumb",
+        "NO_COLOR": "1"
+      }
+    }
+  }
+}
+

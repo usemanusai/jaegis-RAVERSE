@@ -1,8 +1,9 @@
 # RAVERSE MCP Server - Complete Setup Guide for 20+ Clients
 
-**Version**: 1.0.6  
-**Status**: ✅ Production Ready  
+**Version**: 1.0.7
+**Status**: ✅ Production Ready
 **Last Updated**: 2025-10-28
+**Installation Methods**: NPX, NPM, PyPI, Docker
 
 ---
 
@@ -45,6 +46,50 @@ redis-cli -h localhost -p 6379 -a raverse_redis_password_2025 ping
 
 ## Installation
 
+### Method 1: NPX (Recommended - No Installation Required)
+
+```bash
+# Run directly without installation
+npx -y raverse-mcp-server@latest
+
+# Or with specific version
+npx -y raverse-mcp-server@1.0.7
+```
+
+### Method 2: NPM Global Installation
+
+```bash
+# Install globally
+npm install -g raverse-mcp-server
+
+# Run the server
+raverse-mcp-server
+
+# Or use npx
+npx raverse-mcp-server
+```
+
+### Method 3: PyPI Installation
+
+```bash
+# Install from PyPI
+pip install jaegis-raverse-mcp-server
+
+# Run the server
+raverse-mcp-server
+
+# Or use Python module
+python -m jaegis_raverse_mcp_server.server
+```
+
+### Method 4: Docker Installation
+
+```bash
+# Pull and run Docker image
+docker pull raverse/mcp-server:latest
+docker run -p 5000:5000 raverse/mcp-server:latest
+```
+
 ### Step 1: Run Auto Installer
 
 ```bash
@@ -67,6 +112,10 @@ docker-compose ps
 ### Step 3: Start Server
 
 ```bash
+# Using NPX (recommended)
+npx -y raverse-mcp-server@latest
+
+# Or using Python
 python -m jaegis_raverse_mcp_server.server
 ```
 

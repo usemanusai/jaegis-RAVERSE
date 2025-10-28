@@ -73,7 +73,7 @@ class MCPProtocolHandler:
                 },
                 "serverInfo": {
                     "name": "raverse-mcp-server",
-                    "version": "1.0.4",
+                    "version": "1.0.9",
                 },
             },
         }
@@ -81,13 +81,22 @@ class MCPProtocolHandler:
 
     def _handle_list_tools(self, request_id: int) -> str:
         """Handle tools/list request"""
-        tools = self.mcp_server.get_tools_list()
-        response = {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {"tools": tools},
-        }
-        return json.dumps(response)
+        try:
+            # Lazy initialize server if needed
+            if not hasattr(self.mcp_server, '_initialized'):
+                self.mcp_server._initialize()
+                self.mcp_server._initialized = True
+
+            tools = self.mcp_server.get_tools_list()
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools},
+            }
+            return json.dumps(response)
+        except Exception as e:
+            logger.error(f"Error listing tools: {str(e)}")
+            return self._error_response(request_id, -32603, f"Error listing tools: {str(e)}")
 
     async def _handle_call_tool(self, request_id: int, params: Dict) -> str:
         """Handle tools/call request"""

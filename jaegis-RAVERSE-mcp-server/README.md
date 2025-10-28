@@ -88,13 +88,13 @@ This MCP server exposes 35 core capabilities from RAVERSE 2.0 as standardized MC
 #### Option 1: NPX (Fastest - No Installation Required)
 ```bash
 # Run the latest version without installation
-npx raverse-mcp-server@latest
+npx -y raverse-mcp-server@latest
 
 # Or with specific version
-npx raverse-mcp-server@1.0.2
+npx -y raverse-mcp-server@1.0.7
 
 # Verify it works
-npx raverse-mcp-server@latest --version
+npx -y raverse-mcp-server@latest -- --version
 ```
 
 #### Option 2: NPM (Global Installation)

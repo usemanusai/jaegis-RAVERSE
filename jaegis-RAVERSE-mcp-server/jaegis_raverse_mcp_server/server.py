@@ -2,8 +2,10 @@
 
 import sys
 import asyncio
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from .config import get_config, MCPServerConfig
 from .logging_config import setup_logging, get_logger
 from .database import DatabaseManager
@@ -22,6 +24,10 @@ from .setup_guide import print_setup_guide, is_first_time_setup
 from .setup_wizard import run_setup_wizard
 
 logger = get_logger(__name__)
+
+# MCP Protocol Constants
+MCP_VERSION = "2024-11-05"
+PROTOCOL_VERSION = "2024-11-05"
 
 
 class MCPServer:
@@ -390,16 +396,469 @@ class MCPServer:
                 "error_code": "INTERNAL_ERROR",
             }
     
+    def get_tools_list(self) -> List[Dict[str, Any]]:
+        """Get list of all available tools for MCP protocol"""
+        tools = [
+            # Binary Analysis Tools
+            {
+                "name": "disassemble_binary",
+                "description": "Disassemble binary files into assembly code",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "binary_path": {"type": "string", "description": "Path to binary file"},
+                        "architecture": {"type": "string", "description": "Target architecture (x86, x64, arm, etc.)"}
+                    },
+                    "required": ["binary_path"]
+                }
+            },
+            {
+                "name": "generate_code_embedding",
+                "description": "Generate semantic embeddings for code",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "code_content": {"type": "string", "description": "Code to embed"},
+                        "model": {"type": "string", "description": "Embedding model to use"}
+                    },
+                    "required": ["code_content"]
+                }
+            },
+            {
+                "name": "apply_patch",
+                "description": "Apply patches to binary files",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "binary_path": {"type": "string", "description": "Path to binary"},
+                        "patches": {"type": "array", "description": "List of patches to apply"},
+                        "backup": {"type": "boolean", "description": "Create backup before patching"}
+                    },
+                    "required": ["binary_path"]
+                }
+            },
+            {
+                "name": "verify_patch",
+                "description": "Verify patch application",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "original_binary": {"type": "string", "description": "Original binary path"},
+                        "patched_binary": {"type": "string", "description": "Patched binary path"}
+                    },
+                    "required": ["original_binary", "patched_binary"]
+                }
+            },
+            # Knowledge Base Tools
+            {
+                "name": "ingest_content",
+                "description": "Ingest content into knowledge base",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "content": {"type": "string", "description": "Content to ingest"},
+                        "metadata": {"type": "object", "description": "Metadata for content"}
+                    },
+                    "required": ["content"]
+                }
+            },
+            {
+                "name": "search_knowledge_base",
+                "description": "Search knowledge base",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Search query"},
+                        "limit": {"type": "integer", "description": "Result limit"},
+                        "threshold": {"type": "number", "description": "Similarity threshold"}
+                    },
+                    "required": ["query"]
+                }
+            },
+            {
+                "name": "retrieve_entry",
+                "description": "Retrieve knowledge base entry",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "entry_id": {"type": "string", "description": "Entry ID"}
+                    },
+                    "required": ["entry_id"]
+                }
+            },
+            {
+                "name": "delete_entry",
+                "description": "Delete knowledge base entry",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "entry_id": {"type": "string", "description": "Entry ID"}
+                    },
+                    "required": ["entry_id"]
+                }
+            },
+            # Web Analysis Tools
+            {
+                "name": "reconnaissance",
+                "description": "Perform web reconnaissance",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "target_url": {"type": "string", "description": "Target URL"}
+                    },
+                    "required": ["target_url"]
+                }
+            },
+            {
+                "name": "analyze_javascript",
+                "description": "Analyze JavaScript code",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "js_code": {"type": "string", "description": "JavaScript code"},
+                        "deobfuscate": {"type": "boolean", "description": "Deobfuscate code"}
+                    },
+                    "required": ["js_code"]
+                }
+            },
+            {
+                "name": "reverse_engineer_api",
+                "description": "Reverse engineer API endpoints",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "traffic_data": {"type": "object", "description": "Network traffic data"},
+                        "js_analysis": {"type": "object", "description": "JavaScript analysis results"}
+                    }
+                }
+            },
+            {
+                "name": "analyze_wasm",
+                "description": "Analyze WebAssembly modules",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "wasm_data": {"type": "string", "description": "WASM binary data"}
+                    }
+                }
+            },
+            {
+                "name": "security_analysis",
+                "description": "Perform security analysis",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "analysis_data": {"type": "object", "description": "Data to analyze"},
+                        "check_headers": {"type": "boolean", "description": "Check security headers"},
+                        "check_cves": {"type": "boolean", "description": "Check for CVEs"}
+                    }
+                }
+            },
+            # Infrastructure Tools
+            {
+                "name": "database_query",
+                "description": "Execute database query",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "SQL query"},
+                        "params": {"type": "array", "description": "Query parameters"}
+                    },
+                    "required": ["query"]
+                }
+            },
+            {
+                "name": "cache_operation",
+                "description": "Perform cache operation",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "description": "Operation type"},
+                        "key": {"type": "string", "description": "Cache key"},
+                        "value": {"type": "string", "description": "Cache value"},
+                        "ttl": {"type": "integer", "description": "Time to live"}
+                    },
+                    "required": ["operation", "key"]
+                }
+            },
+            {
+                "name": "publish_message",
+                "description": "Publish message to channel",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "channel": {"type": "string", "description": "Channel name"},
+                        "message": {"type": "object", "description": "Message data"}
+                    },
+                    "required": ["channel"]
+                }
+            },
+            {
+                "name": "fetch_content",
+                "description": "Fetch content from URL",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "URL to fetch"},
+                        "timeout": {"type": "integer", "description": "Request timeout"},
+                        "retries": {"type": "integer", "description": "Number of retries"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "record_metric",
+                "description": "Record metric",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "metric_name": {"type": "string", "description": "Metric name"},
+                        "value": {"type": "number", "description": "Metric value"},
+                        "labels": {"type": "object", "description": "Metric labels"}
+                    },
+                    "required": ["metric_name", "value"]
+                }
+            },
+            # Advanced Analysis Tools
+            {
+                "name": "logic_identification",
+                "description": "Identify logic patterns",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "disassembly_data": {"type": "object", "description": "Disassembly data"},
+                        "analyze_control_flow": {"type": "boolean", "description": "Analyze control flow"},
+                        "analyze_data_flow": {"type": "boolean", "description": "Analyze data flow"}
+                    }
+                }
+            },
+            {
+                "name": "traffic_interception",
+                "description": "Intercept network traffic",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "target_url": {"type": "string", "description": "Target URL"},
+                        "ssl_intercept": {"type": "boolean", "description": "Intercept SSL"},
+                        "capture_duration": {"type": "integer", "description": "Capture duration"}
+                    },
+                    "required": ["target_url"]
+                }
+            },
+            {
+                "name": "generate_report",
+                "description": "Generate analysis report",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "analysis_results": {"type": "object", "description": "Analysis results"},
+                        "format": {"type": "string", "description": "Report format"},
+                        "include_summary": {"type": "boolean", "description": "Include summary"}
+                    }
+                }
+            },
+            # Management Tools
+            {
+                "name": "session_management",
+                "description": "Manage analysis sessions",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "description": "Operation type"},
+                        "session_id": {"type": "string", "description": "Session ID"}
+                    },
+                    "required": ["operation"]
+                }
+            },
+            {
+                "name": "task_scheduler",
+                "description": "Schedule analysis tasks",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "task_type": {"type": "string", "description": "Task type"},
+                        "schedule": {"type": "string", "description": "Schedule"},
+                        "parameters": {"type": "object", "description": "Task parameters"}
+                    },
+                    "required": ["task_type"]
+                }
+            },
+            {
+                "name": "result_aggregation",
+                "description": "Aggregate analysis results",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "results": {"type": "array", "description": "Results to aggregate"},
+                        "aggregation_type": {"type": "string", "description": "Aggregation type"}
+                    },
+                    "required": ["results"]
+                }
+            },
+            # Utility Tools
+            {
+                "name": "url_frontier",
+                "description": "Manage URL frontier",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "URL to add"},
+                        "priority": {"type": "integer", "description": "URL priority"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "api_pattern_matcher",
+                "description": "Match API patterns",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "traffic_data": {"type": "object", "description": "Traffic data"},
+                        "pattern_type": {"type": "string", "description": "Pattern type"}
+                    }
+                }
+            },
+            {
+                "name": "response_classifier",
+                "description": "Classify responses",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "response_data": {"type": "object", "description": "Response data"},
+                        "infer_schema": {"type": "boolean", "description": "Infer schema"}
+                    }
+                }
+            },
+            {
+                "name": "websocket_analyzer",
+                "description": "Analyze WebSocket connections",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "websocket_data": {"type": "object", "description": "WebSocket data"},
+                        "analyze_handshake": {"type": "boolean", "description": "Analyze handshake"}
+                    }
+                }
+            },
+            {
+                "name": "crawl_scheduler",
+                "description": "Schedule crawl operations",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "description": "Operation type"},
+                        "job_data": {"type": "object", "description": "Job data"},
+                        "priority": {"type": "integer", "description": "Job priority"}
+                    },
+                    "required": ["operation"]
+                }
+            },
+            # System Tools
+            {
+                "name": "metrics_collector",
+                "description": "Collect metrics",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "metric_type": {"type": "string", "description": "Metric type"},
+                        "metric_name": {"type": "string", "description": "Metric name"},
+                        "value": {"type": "number", "description": "Metric value"},
+                        "labels": {"type": "object", "description": "Metric labels"}
+                    },
+                    "required": ["metric_type", "metric_name", "value"]
+                }
+            },
+            {
+                "name": "multi_level_cache",
+                "description": "Multi-level cache operations",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "description": "Operation type"},
+                        "key": {"type": "string", "description": "Cache key"},
+                        "value": {"type": "string", "description": "Cache value"},
+                        "ttl": {"type": "integer", "description": "Time to live"}
+                    },
+                    "required": ["operation", "key"]
+                }
+            },
+            {
+                "name": "configuration_service",
+                "description": "Configuration service",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "description": "Operation type"},
+                        "key": {"type": "string", "description": "Config key"},
+                        "value": {"type": "string", "description": "Config value"}
+                    },
+                    "required": ["operation", "key"]
+                }
+            },
+            {
+                "name": "llm_interface",
+                "description": "LLM interface",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "prompt": {"type": "string", "description": "Prompt"},
+                        "model": {"type": "string", "description": "Model name"},
+                        "max_tokens": {"type": "integer", "description": "Max tokens"},
+                        "temperature": {"type": "number", "description": "Temperature"}
+                    },
+                    "required": ["prompt"]
+                }
+            },
+            # NLP and Validation Tools
+            {
+                "name": "natural_language_interface",
+                "description": "Natural language interface",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "command": {"type": "string", "description": "Command"},
+                        "context": {"type": "object", "description": "Context"}
+                    },
+                    "required": ["command"]
+                }
+            },
+            {
+                "name": "poc_validation",
+                "description": "Validate proof of concept",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "vulnerability_finding": {"type": "object", "description": "Vulnerability finding"},
+                        "generate_poc": {"type": "boolean", "description": "Generate PoC"},
+                        "execute_poc": {"type": "boolean", "description": "Execute PoC"}
+                    }
+                }
+            }
+        ]
+        return tools
+
     def shutdown(self) -> None:
         """Shutdown server and cleanup resources"""
+        # Prevent double shutdown
+        if hasattr(self, '_shutdown_called') and self._shutdown_called:
+            return
+
+        self._shutdown_called = True
         logger.info("Shutting down RAVERSE MCP Server")
-        
+
         if self.db_manager:
-            self.db_manager.close()
-        
+            try:
+                self.db_manager.close()
+            except Exception as e:
+                logger.warning(f"Error closing database: {str(e)}")
+
         if self.cache_manager:
-            self.cache_manager.close()
-        
+            try:
+                self.cache_manager.close()
+            except Exception as e:
+                logger.warning(f"Error closing cache: {str(e)}")
+
         logger.info("RAVERSE MCP Server shutdown complete")
 
 
@@ -408,22 +867,42 @@ def main() -> int:
     try:
         config = get_config()
         setup_logging(config.log_level)
-        
+
         logger.info(f"Starting RAVERSE MCP Server v{config.server_version}")
-        
-        server = MCPServer(config)
-        
-        # Keep server running
+
+        # Create server WITHOUT initializing components yet
+        # This allows MCP protocol to start immediately
+        server = MCPServer.__new__(MCPServer)
+        server.config = config
+        server.db_manager = None
+        server.cache_manager = None
+        server.binary_tools = None
+        server.kb_tools = None
+        server.web_tools = None
+        server.infra_tools = None
+        server.advanced_tools = None
+        server.management_tools = None
+        server.utility_tools = None
+        server.system_tools = None
+        server.nlp_tools = None
+
+        # Import and run MCP protocol handler
+        from .mcp_protocol import run_mcp_server
+
+        # Run MCP server with stdio transport
         try:
-            asyncio.run(asyncio.sleep(float('inf')))
+            asyncio.run(run_mcp_server(server))
         except KeyboardInterrupt:
             logger.info("Received shutdown signal")
         finally:
-            server.shutdown()
-        
+            if hasattr(server, 'shutdown'):
+                server.shutdown()
+
         return 0
     except Exception as e:
         logger.error(f"Fatal error: {str(e)}")
+        sys.stderr.write(f"ERROR: {str(e)}\n")
+        sys.stderr.flush()
         return 1
 
 

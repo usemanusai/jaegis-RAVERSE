@@ -1,13 +1,13 @@
 {
   "mcpServers": {
     "raverse": {
-      "command": "python",
-      "args": ["-m", "jaegis_raverse_mcp_server.server"],
+      "command": "npx",
+      "args": ["-y", "raverse-mcp-server@latest"],
       "env": {
         "DATABASE_URL": "postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse",
         "REDIS_URL": "redis://:raverse_redis_password_2025@localhost:6379/0",
         "LOG_LEVEL": "INFO",
-        "SERVER_VERSION": "1.0.6"
+        "SERVER_VERSION": "1.0.7"
       },
       "disabled": false
     }
