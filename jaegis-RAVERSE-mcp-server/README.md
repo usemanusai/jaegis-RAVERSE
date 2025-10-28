@@ -91,7 +91,7 @@ This MCP server exposes 35 core capabilities from RAVERSE 2.0 as standardized MC
 npx -y raverse-mcp-server@latest
 
 # Or with specific version
-npx -y raverse-mcp-server@1.0.7
+npx -y raverse-mcp-server@1.0.10
 
 # Verify it works
 npx -y raverse-mcp-server@latest -- --version
@@ -508,6 +508,70 @@ The RAVERSE MCP Server is compatible with 20+ AI coding assistants and IDEs:
 **Configuration Files**: See `/mcp-configs/` directory for all client configurations
 
 **Setup Guide**: See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed instructions for each client
+
+## Troubleshooting
+
+### Issue: Server shows wrong version or no tools in Augment Code
+
+**Symptoms:**
+- Augment Code shows red dot with no tool count
+- Server reports version 1.0.0 instead of 1.0.10
+- Redis/PostgreSQL connection errors on startup
+
+**Solution:**
+1. Clear caches:
+   ```bash
+   npm cache clean --force
+   pip cache purge
+   ```
+
+2. Update Augment Code MCP configuration to use v1.0.10:
+   ```json
+   {
+     "mcpServers": {
+       "raverse": {
+         "command": "npx",
+         "args": ["-y", "raverse-mcp-server@1.0.10"]
+       }
+     }
+   }
+   ```
+
+3. Restart Augment Code completely (close and reopen)
+
+4. Wait 15-20 seconds for tool discovery
+
+**Expected Result:**
+```
+raverse (35) tools ✅ (green indicator)
+```
+
+### Issue: Python not found
+
+**Solution:**
+```bash
+# Install Python 3.13+
+# Windows: https://www.python.org/downloads/
+# macOS: brew install python@3.13
+# Linux: apt-get install python3.13
+```
+
+### Issue: Redis/PostgreSQL connection errors
+
+**Solution:**
+The server uses lazy initialization - database connections only happen on first tool request. If you see connection errors:
+
+1. Ensure PostgreSQL and Redis are running
+2. Check DATABASE_URL and REDIS_URL in .env
+3. Run setup wizard: `raverse-mcp-server --setup`
+
+### Issue: Port already in use
+
+**Solution:**
+```bash
+# Change port in .env
+SERVER_PORT=8001
+```
 
 ## Documentation
 
