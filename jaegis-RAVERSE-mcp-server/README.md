@@ -468,27 +468,56 @@ docker pull raverse/mcp-server:latest
 
 ### MCP Client Integration
 
-The server is compatible with 20+ MCP clients including:
-- Claude Desktop (Anthropic)
-- Cursor
-- Cline (VSCode)
-- Roo Code (VSCode)
-- Augment Code
-- Continue.dev
-- Windsurf (Codeium)
-- Zed Editor
-- And many more...
+The RAVERSE MCP Server is compatible with 20+ AI coding assistants and IDEs:
 
-See [MCP_CLIENT_SETUP.md](MCP_CLIENT_SETUP.md) for detailed configuration guides.
+#### Anthropic
+- **Claude Desktop** - macOS, Windows, Linux
+- **Claude Web** - Web-based interface
+
+#### Code Editors
+- **Cursor IDE** - AI-first code editor
+- **VS Code + Cline** - VSCode extension
+- **VS Code + Roo Code** - VSCode extension
+- **Windsurf IDE** - Codeium's IDE
+- **Zed Editor** - High-performance editor
+
+#### Web-Based IDEs
+- **Replit** - Cloud IDE
+- **Bolt.new** - AI web development
+- **v0.dev** - Vercel's AI builder
+- **Lovable.dev** - AI web builder
+
+#### AI Coding Assistants
+- **Augment Code** - Code intelligence
+- **Manus AI** - AI agent
+- **Devin AI** - Autonomous AI engineer
+- **Continue.dev** - Open-source copilot
+- **Aider** - AI pair programmer
+
+#### Enterprise & Cloud
+- **JetBrains AI Assistant** - IntelliJ, PyCharm, etc.
+- **GitHub Copilot** - GitHub's AI assistant
+- **Sourcegraph Cody** - Code search AI
+- **Tabnine** - AI code completion
+- **Amazon CodeWhisperer** - AWS AI assistant
+
+#### Research & Analysis
+- **Perplexity** - AI research assistant
+- **GPT-4 Web** - OpenAI's web interface
+
+**Configuration Files**: See `/mcp-configs/` directory for all client configurations
+
+**Setup Guide**: See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed instructions for each client
 
 ## Documentation
 
 - **[Installation Guide](INSTALLATION.md)** - Complete installation instructions
 - **[Quick Start](QUICKSTART.md)** - Get running in 5 minutes
-- **[MCP Client Setup](MCP_CLIENT_SETUP.md)** - Configure 20+ MCP clients
+- **[MCP Setup Guide](MCP_SETUP_GUIDE.md)** - Setup for 20+ MCP clients
+- **[MCP Client Setup](MCP_CLIENT_SETUP.md)** - Configure MCP clients
 - **[Integration Guide](INTEGRATION_GUIDE.md)** - Integrate with RAVERSE
 - **[Deployment Guide](DEPLOYMENT.md)** - Production deployment
-- **[Tools Registry](TOOLS_REGISTRY_COMPLETE.md)** - Complete tool reference
+- **[Tools Registry](TOOLS_REGISTRY_COMPLETE.md)** - Complete tool reference (all 35 tools)
 - **[Package Distribution](PACKAGE_DISTRIBUTION.md)** - For package maintainers
 - **[Publishing Guide](PUBLISHING.md)** - Publishing to npm and PyPI
 

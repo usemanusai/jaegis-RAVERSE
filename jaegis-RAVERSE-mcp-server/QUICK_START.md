@@ -234,11 +234,41 @@ docker-compose down -v
 
 ---
 
+## 🔌 Step 4: Configure MCP Client (Optional)
+
+To use RAVERSE with AI coding assistants like Claude Desktop, Cursor, VS Code, etc.:
+
+### Quick Setup
+
+```bash
+# Copy configuration for your client
+# Example: Claude Desktop
+cp mcp-configs/anthropic/claude-desktop.json \
+  ~/Library/Application\ Support/Claude/claude_desktop_config.json
+
+# Restart your client
+```
+
+### Supported Clients (20+)
+
+- Claude Desktop (Anthropic)
+- Cursor IDE
+- VS Code (Cline, Roo Code)
+- Windsurf IDE
+- Zed Editor
+- JetBrains AI Assistant
+- GitHub Copilot
+- And 13+ more...
+
+**See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed setup for each client**
+
+---
+
 ## 📚 Next Steps
 
 1. **Read the documentation**: See `README.md`
-2. **Configure MCP client**: See `MCP_CLIENT_SETUP.md`
-3. **Explore tools**: See `TOOLS_REGISTRY_COMPLETE.md`
+2. **Configure MCP client**: See `MCP_SETUP_GUIDE.md` (20+ clients supported)
+3. **Explore tools**: See `TOOLS_REGISTRY_COMPLETE.md` (all 35 tools)
 4. **Check logs**: `cat installation.log`
 
 ---

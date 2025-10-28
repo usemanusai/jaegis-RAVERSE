@@ -1,7 +1,7 @@
 {
   "name": "raverse-mcp-server",
-  "version": "1.0.5",
-  "description": "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools",
+  "version": "1.0.6",
+  "description": "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools and 20+ client support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -39,7 +39,12 @@
     "knowledge-base",
     "rag",
     "web-analysis",
-    "api-reverse-engineering"
+    "api-reverse-engineering",
+    "claude-desktop",
+    "cursor-ide",
+    "vscode-extension",
+    "ai-coding-assistant",
+    "mcp-client-support"
   ],
   "author": {
     "name": "RAVERSE Team",

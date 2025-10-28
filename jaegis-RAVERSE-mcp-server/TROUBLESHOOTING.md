@@ -414,6 +414,219 @@ docker-compose --version
 
 ---
 
+## MCP Connection Issues
+
+### Issue: MCP Client Cannot Connect to Server
+
+**Error Message**:
+```
+Connection refused
+Failed to connect to MCP server
+Server not responding
+```
+
+**Cause**:
+- Server not running
+- Wrong configuration file
+- Firewall blocking connection
+- Incorrect credentials in .env
+
+**Solution**:
+
+**Step 1: Verify Server is Running**
+```bash
+# Check Docker containers
+docker-compose ps
+
+# Expected: raverse-postgres and raverse-redis should be "Up"
+
+# Check if server process is running
+ps aux | grep jaegis_raverse_mcp_server
+```
+
+**Step 2: Verify Configuration**
+```bash
+# Check .env file exists
+cat .env
+
+# Verify credentials
+grep DATABASE_URL .env
+grep REDIS_URL .env
+
+# Validate JSON config file
+jq . mcp-configs/anthropic/claude-desktop.json
+```
+
+**Step 3: Test Connections**
+```bash
+# Test PostgreSQL
+psql postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse -c "SELECT 1"
+
+# Test Redis
+redis-cli -h localhost -p 6379 -a raverse_redis_password_2025 ping
+```
+
+**Step 4: Restart Services**
+```bash
+# Restart Docker containers
+docker-compose restart
+
+# Restart server
+python -m jaegis_raverse_mcp_server.server
+```
+
+---
+
+### Issue: Invalid MCP Configuration
+
+**Error Message**:
+```
+JSON parse error
+Invalid configuration format
+Missing required fields
+```
+
+**Cause**:
+- Syntax error in JSON file
+- Wrong file location
+- Incomplete configuration
+
+**Solution**:
+
+**Step 1: Validate JSON**
+```bash
+# Check JSON syntax
+jq . mcp-configs/anthropic/claude-desktop.json
+
+# If error, fix the JSON file
+```
+
+**Step 2: Verify File Location**
+```bash
+# Claude Desktop (macOS)
+ls ~/Library/Application\ Support/Claude/claude_desktop_config.json
+
+# Claude Desktop (Windows)
+dir "%APPDATA%\Claude\claude_desktop_config.json"
+
+# Cursor
+ls ~/.cursor/mcp_config.json
+
+# VS Code
+ls ~/.vscode/cline_mcp_config.json
+```
+
+**Step 3: Check Configuration Content**
+```bash
+# Verify required fields
+cat mcp-configs/anthropic/claude-desktop.json | jq '.mcpServers.raverse'
+
+# Should show:
+# {
+#   "command": "python",
+#   "args": ["-m", "jaegis_raverse_mcp_server.server"],
+#   "env": { ... }
+# }
+```
+
+---
+
+### Issue: Redis Authentication Failed
+
+**Error Message**:
+```
+Authentication required
+WRONGPASS invalid username-password pair
+```
+
+**Cause**:
+- Redis password not in REDIS_URL
+- Wrong password in .env
+- Redis not started with password
+
+**Solution**:
+
+**Step 1: Check REDIS_URL**
+```bash
+# Should include password
+grep REDIS_URL .env
+
+# Should look like:
+# REDIS_URL=redis://:raverse_redis_password_2025@localhost:6379/0
+```
+
+**Step 2: Verify Redis is Running**
+```bash
+# Check Redis container
+docker-compose ps redis
+
+# Test connection with password
+redis-cli -h localhost -p 6379 -a raverse_redis_password_2025 ping
+
+# Should return: PONG
+```
+
+**Step 3: Restart Redis**
+```bash
+# Restart Redis container
+docker-compose restart redis
+
+# Wait 5 seconds
+sleep 5
+
+# Test again
+redis-cli -h localhost -p 6379 -a raverse_redis_password_2025 ping
+```
+
+---
+
+### Issue: PostgreSQL Connection Failed
+
+**Error Message**:
+```
+could not connect to server
+FATAL: password authentication failed
+```
+
+**Cause**:
+- PostgreSQL not running
+- Wrong credentials in DATABASE_URL
+- PostgreSQL not initialized
+
+**Solution**:
+
+**Step 1: Check PostgreSQL**
+```bash
+# Check container
+docker-compose ps postgres
+
+# Test connection
+psql postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse -c "SELECT 1"
+```
+
+**Step 2: Verify Credentials**
+```bash
+# Check DATABASE_URL
+grep DATABASE_URL .env
+
+# Should be:
+# DATABASE_URL=postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse
+```
+
+**Step 3: Restart PostgreSQL**
+```bash
+# Restart container
+docker-compose restart postgres
+
+# Wait 10 seconds for startup
+sleep 10
+
+# Test again
+psql postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse -c "SELECT 1"
+```
+
+---
+
 ## Getting Help
 
 1. **Check this guide** - Most issues are covered above
