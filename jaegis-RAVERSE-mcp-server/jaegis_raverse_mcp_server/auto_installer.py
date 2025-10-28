@@ -216,7 +216,12 @@ REQUEST_TIMEOUT_SECONDS=60
         try:
             import redis
             logger.info("Verifying Redis connection...")
-            r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+            r = redis.Redis(
+                host='localhost',
+                port=6379,
+                password='raverse_redis_password_2025',
+                decode_responses=True
+            )
             r.ping()
             logger.info("[OK] Redis connection verified")
             return True
