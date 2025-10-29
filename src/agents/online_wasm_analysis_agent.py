@@ -7,7 +7,7 @@ import logging
 import json
 import subprocess
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import tempfile
 import re

@@ -5,7 +5,7 @@ Performs vulnerability detection and security scanning using OWASP Top 10 checks
 
 import logging
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import re
 import ssl

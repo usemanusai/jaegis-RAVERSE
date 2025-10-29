@@ -5,7 +5,7 @@ Automates PoC validation and evidence capture using Playwright and Selenium.
 
 import logging
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import tempfile
 import os

@@ -5,7 +5,7 @@ Generates comprehensive reports and exports findings in multiple formats.
 
 import logging
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import tempfile
 import os
