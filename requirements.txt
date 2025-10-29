@@ -1,5 +1,5 @@
 # Core dependencies
-gunicorn
+gunicorn>=23.0.0
 mcp>=0.1.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
