@@ -573,6 +573,23 @@ The server uses lazy initialization - database connections only happen on first 
 SERVER_PORT=8001
 ```
 
+## Infrastructure & Hosting
+
+### Free Hosting Architecture
+
+For organizations looking to deploy RAVERSE MCP server with minimal infrastructure costs, we provide a comprehensive guide on setting up a **Hybrid-Cloud Architecture** for free hosting.
+
+**[📄 Free Hosting Setup Using a Hybrid-Cloud Architecture](../Free%20Hosting%20Setup%20Using%20a%20Hybrid-Cloud%20Architecture.pdf)**
+
+This guide covers:
+- Cost-effective deployment strategies
+- Hybrid-cloud architecture design
+- Free tier services integration
+- Scalability and performance optimization
+- Security best practices for free hosting
+
+Perfect for startups, research projects, and proof-of-concept deployments.
+
 ## Documentation
 
 - **[Installation Guide](INSTALLATION.md)** - Complete installation instructions
