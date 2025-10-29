@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: raverse-api
+    runtime: python
+    pythonVersion: 3.13
+    
+    # Build configuration
+    buildCommand: |
+      cd src && \
+      pip install --upgrade pip && \
+      pip install -r requirements.txt
+    
+    # Start command - use app.py with uvicorn
+    startCommand: cd src && gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    
+    # Environment variables
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
+    
+    # Health check
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    
+    # Disk size
+    disk:
+      name: raverse-data
+      mountPath: /data
+      sizeGB: 1
+
