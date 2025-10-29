@@ -15,7 +15,6 @@
 [![GitHub Stars](https://img.shields.io/github/stars/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
 [![GitHub Forks](https://img.shields.io/github/forks/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
 [![GitHub Issues](https://img.shields.io/github/issues/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE/issues)
-[![GitHub License](https://img.shields.io/github/license/usemanusai/jaegis-RAVERSE.svg)](LICENSE)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/usemanusai/jaegis-RAVERSE.svg)](https://github.com/usemanusai/jaegis-RAVERSE)
 
 ### Project Status
@@ -50,6 +49,10 @@
 ## Overview
 
 RAVERSE 2.0 is an advanced AI-powered multi-agent system for binary analysis, reverse engineering, and automated patching. It combines offline binary patching capabilities with online target analysis, leveraging multiple specialized AI agents to identify vulnerabilities, generate patches, and validate security improvements.
+
+---
+
+[For free hosting of this project](https://github.com/usemanusai/jaegis-RAVERSE/blob/main/Free%20Hosting%20Setup%20Using%20a%20Hybrid-Cloud%20Architecture.pdf)
 
 ---
 
@@ -331,10 +334,10 @@ python src/raverse_online_cli.py --scope examples/scope_example.json --options e
 │     ┌────▼────┐      ┌─────▼─────┐     ┌─────▼─────┐            │
 │     │Offline  │      │  Online   │     │ Advanced  │            │
 │     │Pipeline │      │ Pipeline  │     │  Agents   │            │
-│     │(DAA→    │      │(Recon→    │     │(RAG, KB,  │            │
-│     │LIMA→PEA │      │Traffic→   │     │ Quality)  │            │
-│     │→VA)     │      │JS→API→    │     │           │            │
-│     │         │      │WASM→Sec)  │     │           │            │
+│     │(DAA→    │      │ (Recon→   │     │ (RAG, KB, │            │
+│     │LIMA→PEA │      │ Traffic→  │     │  Quality) │            │
+│     │→VA)     │      │ JS→API→   │     │           │            │
+│     │         │      │ WASM→Sec) │     │           │            │
 │     └────┬────┘      └─────┬─────┘     └─────┬─────┘            │
 │          │                 │                 │                  │
 │          └─────────────────┼─────────────────┘                  │
@@ -6609,19 +6612,19 @@ RAVERSE can be deployed as microservices:
                      │
         ┌────────────┼────────────┐
         │            │            │
-   ┌────▼────┐  ┌───▼────┐  ┌───▼────┐
+   ┌────▼────┐  ┌────▼────┐  ┌────▼───┐
    │ Offline │  │ Online  │  │  RAG   │
    │ Service │  │ Service │  │Service │
-   └────┬────┘  └───┬────┘  └───┬────┘
-        │           │           │
-        └───────────┼───────────┘
+   └────┬────┘  └───┬─────┘  └───┬────┘
+        │           │            │
+        └───────────┼────────────┘
                     │
         ┌───────────┼───────────┐
         │           │           │
-   ┌────▼────┐  ┌──▼───┐  ┌───▼────┐
-   │PostgreSQL│  │Redis │  │Prometheus
-   │ + pgvector│  │Cluster│  │+ Grafana
-   └──────────┘  └──────┘  └────────┘
+   ┌────▼─────┐  ┌──▼────┐  ┌───▼──────┐
+   │PostgreSQL│  │Redis  │  │Prometheus│
+   │+ pgvector│  │Cluster│  │+ Grafana │
+   └──────────┘  └───────┘  └──────────┘
 ```
 
 ### Event-Driven Architecture
@@ -6788,7 +6791,7 @@ User Input
 │   Check Cache (L1 → L2 → L3)        │
 └────────────┬────────────────────────┘
              ↓
-        ┌────┴────┐
+        ┌────┴─────┐
         │          │
     Cache Hit   Cache Miss
         │          │
@@ -8286,42 +8289,6 @@ Problem: Vector search returns no results
 
 ---
 
-**Documentation Complete**
-
-This comprehensive README provides complete technical documentation for RAVERSE 2.0, including:
-
-✓ System architecture and design patterns
-✓ Complete API reference with examples
-✓ Configuration and environment setup
-✓ Deployment guides (Docker, Kubernetes)
-✓ Performance optimization techniques
-✓ Security and compliance guidelines
-✓ Testing and CI/CD pipelines
-✓ Troubleshooting and FAQ
-✓ Implementation guides
-✓ Technical specifications
-✓ Appendices with checklists and references
-
-**Total Documentation**: 9000+ lines
-**Coverage**: 100% of system components
-**Examples**: 50+ code examples
-**Diagrams**: 10+ architecture diagrams
-**Tables**: 30+ reference tables
-
-**Last Updated**: October 26, 2025
-**Version**: 2.0.0
-**Status**: Production Ready
-**Documentation**: Comprehensive (9000+ lines)
-**Test Coverage**: 85%+
-**Performance**: Optimized for production workloads
-**Maintainers**: RAVERSE Development Team
-**License**: MIT
-**Repository**: https://github.com/usemanusai/RAVERSE
-**Issues**: https://github.com/usemanusai/RAVERSE/issues
-**Discussions**: https://github.com/usemanusai/RAVERSE/discussions
-
----
-
 ## Comprehensive Index
 
 ### A-Z Quick Reference
@@ -8437,36 +8404,6 @@ Role-Based Access Control (RBAC) with fine-grained permissions for admin, analys
 - [ ] Schedule retrospective
 - [ ] Update documentation
 - [ ] Celebrate success!
-
----
-
-**COMPREHENSIVE DOCUMENTATION COMPLETE**
-
-This README now contains:
-
-✅ **9000+ lines** of comprehensive technical documentation
-✅ **50+ code examples** with real-world use cases
-✅ **10+ architecture diagrams** showing system design
-✅ **30+ reference tables** for quick lookup
-✅ **Complete API reference** with all endpoints
-✅ **Deployment guides** for Docker, Kubernetes, Cloud
-✅ **Performance optimization** techniques and benchmarks
-✅ **Security & compliance** guidelines
-✅ **Testing & CI/CD** pipeline documentation
-✅ **Troubleshooting guides** with decision trees
-✅ **Implementation guides** for custom components
-✅ **Advanced topics** for expert users
-✅ **Comprehensive index** for easy navigation
-✅ **Appendices** with checklists and references
-
-**Perfect for:**
-- New developers onboarding
-- System architects designing deployments
-- DevOps engineers managing infrastructure
-- Security teams implementing compliance
-- Performance engineers optimizing systems
-- Support teams troubleshooting issues
-- Project managers planning implementations
 
 ---
 
@@ -8904,45 +8841,6 @@ def generate_compliance_report(start_date, end_date):
 
     return report
 ```
-
----
-
-**FINAL DOCUMENTATION SUMMARY**
-
-This comprehensive README provides complete technical documentation for RAVERSE 2.0 with:
-
-✅ **9000+ lines** of detailed technical content
-✅ **Complete system architecture** documentation
-✅ **50+ code examples** with real implementations
-✅ **30+ reference tables** for quick lookup
-✅ **10+ architecture diagrams** showing system design
-✅ **Deployment guides** for all platforms
-✅ **Performance optimization** techniques
-✅ **Security & compliance** guidelines
-✅ **Advanced topics** for expert users
-✅ **Comprehensive index** for navigation
-✅ **Troubleshooting guides** with decision trees
-✅ **Implementation guides** for custom components
-✅ **Appendices** with checklists and references
-
-**Total Documentation**: 9000+ lines
-**Code Examples**: 50+
-**Reference Tables**: 30+
-**Architecture Diagrams**: 10+
-**Sections**: 40+
-**Appendices**: 7+
-
-**Last Updated**: October 26, 2025
-**Version**: 2.0.0
-**Status**: Production Ready
-**Documentation**: Comprehensive (9000+ lines)
-**Test Coverage**: 85%+
-**Performance**: Optimized for production workloads
-**Maintainers**: RAVERSE Development Team
-**License**: MIT
-**Repository**: https://github.com/usemanusai/RAVERSE
-**Issues**: https://github.com/usemanusai/RAVERSE/issues
-**Discussions**: https://github.com/usemanusai/RAVERSE/discussions
 
 ---
 
