@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jaegis-raverse-mcp-server"
-version = "1.0.10"
+version = "1.0.11"
 description = "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools, NPX/NPM/PyPI support, and 20+ client configurations"
 readme = "README.md"
 requires-python = ">=3.13"
