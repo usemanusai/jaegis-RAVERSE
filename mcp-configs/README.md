@@ -93,13 +93,23 @@ All configuration files use the following settings:
 {
   "mcpServers": {
     "raverse": {
-      "command": "python",
-      "args": ["-m", "jaegis_raverse_mcp_server.server"],
+      "command": "npx",
+      "args": ["-y", "raverse-mcp-server@latest"],
       "env": {
+        "PROXY_URL": "https://raverse-mcp-proxy.use-manus-ai.workers.dev",
+        "BACKEND_URL": "https://jaegis-raverse.onrender.com",
         "DATABASE_URL": "postgresql://raverse:raverse_secure_password_2025@localhost:5432/raverse",
         "REDIS_URL": "redis://:raverse_redis_password_2025@localhost:6379/0",
         "LOG_LEVEL": "INFO",
-        "SERVER_VERSION": "1.0.6"
+        "SERVER_VERSION": "1.0.8"
+      }
+    },
+    "raverse-mcp-proxy": {
+      "command": "npx",
+      "args": ["-y", "raverse-mcp-proxy@latest"],
+      "env": {
+        "PROXY_URL": "https://raverse-mcp-proxy.use-manus-ai.workers.dev",
+        "BACKEND_URL": "https://jaegis-raverse.onrender.com"
       }
     }
   }
@@ -108,10 +118,17 @@ All configuration files use the following settings:
 
 ### Environment Variables
 
+**RAVERSE Server**:
+- **PROXY_URL**: Cloudflare proxy URL for edge caching
+- **BACKEND_URL**: Render backend URL for RAVERSE API
 - **DATABASE_URL**: PostgreSQL connection string
 - **REDIS_URL**: Redis connection string with password
 - **LOG_LEVEL**: Logging level (INFO, DEBUG, ERROR)
-- **SERVER_VERSION**: RAVERSE server version
+- **SERVER_VERSION**: RAVERSE server version (1.0.8)
+
+**RAVERSE MCP Proxy**:
+- **PROXY_URL**: Cloudflare proxy URL
+- **BACKEND_URL**: Render backend URL
 
 ---
 
