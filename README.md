@@ -40,6 +40,11 @@
 - [Monitoring & Metrics](#monitoring--metrics)
 - [Performance & Scalability](#performance--scalability)
 - [Usage Examples](#usage-examples)
+- [Deployment Workflows](#deployment-workflows)
+  - [Development Deployment](#development-deployment)
+  - [Production Deployment](#production-deployment)
+  - [Kubernetes Deployment](#kubernetes-deployment)
+  - [Cloudflare Workflows Deployment](#cloudflare-workflows-deployment-hybrid-cloud-architecture)
 - [Development](#development)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -5147,6 +5152,62 @@ kubectl logs -f deployment/raverse -n raverse
 # 5. Access application
 kubectl port-forward svc/raverse 8000:8000 -n raverse
 ```
+
+### Cloudflare Workflows Deployment (Hybrid-Cloud Architecture)
+
+RAVERSE now supports deployment with Cloudflare Workflows for a hybrid-cloud architecture combining Cloudflare's edge network with Render's origin deployment.
+
+**Features:**
+- Binary Analysis Workflow: Single-step analysis with edge caching
+- Multi-Step Analysis Workflow: DAG-based workflows with parallel execution
+- Cache Management Workflow: Edge cache operations and optimization
+- Hybrid Routing Workflow: Intelligent routing between edge and origin
+
+**Setup:**
+
+```bash
+# 1. Navigate to workflows directory
+cd workflows-starter
+
+# 2. Install dependencies
+npm install
+
+# 3. Authenticate with Cloudflare
+npx wrangler login
+
+# 4. Setup infrastructure (KV namespaces and D1 database)
+npm run setup
+
+# 5. Set secrets
+npx wrangler secret put OPENROUTER_API_KEY
+
+# 6. Deploy to Cloudflare
+npm run deploy
+
+# 7. Verify deployment
+curl https://raverse-workflows.use-manus-ai.workers.dev/health
+```
+
+**Documentation:**
+- [Cloudflare Workflows Setup Guide](CLOUDFLARE_WORKFLOWS_SETUP.md)
+- [Cloudflare Deployment Guide](CLOUDFLARE_DEPLOYMENT_GUIDE.md)
+- [Hybrid-Cloud Architecture Guide](FREE_HOSTING_HYBRID_CLOUD_ARCHITECTURE.md)
+
+**Architecture:**
+```
+Client → Cloudflare Workers (Edge) → Cloudflare Workflows → Render (RAVERSE API)
+                    ↓
+            KV Cache (RAVERSE_CACHE)
+            D1 Database (raverse-workflows)
+```
+
+**Benefits:**
+- Global edge caching for reduced latency
+- Automatic failover and retry logic
+- Durable workflow execution
+- State persistence with D1 database
+- Performance optimization with edge caching
+- Seamless integration with existing RAVERSE deployment
 
 ## Security & Compliance
 
