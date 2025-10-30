@@ -1,5 +1,5 @@
 # RAVERSE MCP Proxy - Cloudflare Worker Configuration
-# 
+#
 # This configuration deploys the RAVERSE MCP proxy to Cloudflare Workers.
 # The proxy provides edge caching and request routing to the RAVERSE backend.
 
@@ -8,20 +8,8 @@ main = "index.js"
 compatibility_date = "2025-10-29"
 compatibility_flags = ["nodejs_compat"]
 
-# Account and deployment settings
-account_id = "use-manus-ai"
+# Workers deployment settings
 workers_dev = true
-
-# Environment variables
-[env.production]
-name = "raverse-mcp-proxy"
-routes = [
-  { pattern = "raverse-mcp-proxy.use-manus-ai.workers.dev/*", zone_name = "use-manus-ai.workers.dev" }
-]
-
-# Scheduled events for health checks
-[[triggers.crons]]
-cron = "*/5 * * * *"  # Every 5 minutes
 
 # Build configuration
 [build]
@@ -30,34 +18,5 @@ cwd = "./"
 
 # Observability
 [observability]
-enabled = true
-
-# Analytics Engine
-[[analytics_engine_datasets]]
-dataset = "raverse_proxy_metrics"
-
-# KV Namespace bindings for caching metadata
-[[kv_namespaces]]
-binding = "RAVERSE_CACHE"
-id = "raverse-mcp-cache"
-preview_id = "raverse-mcp-cache-preview"
-
-# D1 Database for request logging
-[[d1_databases]]
-binding = "RAVERSE_DB"
-database_name = "raverse-proxy-logs"
-database_id = "raverse-proxy-logs-id"
-
-# Service bindings for other workers
-[[services]]
-binding = "RAVERSE_API"
-service = "raverse-api-worker"
-environment = "production"
-
-# Limits and performance
-limits = { cpu_ms = 50 }
-
-# Logging configuration
-[logging]
 enabled = true
 
