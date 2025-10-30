@@ -9,14 +9,14 @@
         "LOG_LEVEL": "INFO",
         "SERVER_VERSION": "1.0.8",
 
-        "REDIS_URI": "rediss://default:REDACTED@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056",
+        "REDIS_URL": "rediss://default:REDACTED@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056",
         "REDIS_HOST": "raverse-valkey-cache-raverse-pg-db.g.aivencloud.com",
         "REDIS_PORT": "23056",
         "REDIS_USER": "default",
         "REDIS_PASSWORD": "REDACTED",
         "REDIS_TLS": "true",
 
-        "POSTGRES_URI": "postgres://avnadmin:REDACTED@raverse-pg-db-raverse-pg-db.i.aivencloud.com:23055/defaultdb?sslmode=require",
+        "DATABASE_URL": "postgres://avnadmin:REDACTED@raverse-pg-db-raverse-pg-db.i.aivencloud.com:23055/defaultdb?sslmode=require",
         "POSTGRES_HOST": "raverse-pg-db-raverse-pg-db.i.aivencloud.com",
         "POSTGRES_PORT": "23055",
         "POSTGRES_USER": "avnadmin",
@@ -27,6 +27,7 @@
       }
     },
     "raverse-mcp-proxy": {
+      "disabled": true,
       "command": "npx",
       "args": ["-y", "raverse-mcp-proxy@latest"],
       "env": {
