@@ -101,3 +101,7 @@ memory-api-agents.json
 coverage_output.txt
 test_output.txt
 
+
+
+# Local MCP config with secrets (do not commit)
+mcp-configs/other/augment-code.local.json
