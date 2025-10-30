@@ -23,6 +23,9 @@ class MCPServerConfig(BaseSettings):
     database_pool_size: int = Field(default=10, description="Database connection pool size")
     database_max_overflow: int = Field(default=20, description="Database max overflow connections")
 
+    # PostgreSQL TLS CA (optional)
+    postgres_ca_cert: Optional[str] = Field(default=None, description="PEM-encoded CA certificate for PostgreSQL (optional)")
+
     # Redis settings
     redis_url: str = Field(
         default="redis://localhost:6379/0",
@@ -59,7 +62,7 @@ class MCPServerConfig(BaseSettings):
         env_file = str(Path(__file__).parent.parent / ".env")
         env_file_encoding = "utf-8"
         case_sensitive = False
-    
+
     @validator("log_level")
     def validate_log_level(cls, v: str) -> str:
         """Validate log level"""
@@ -67,14 +70,14 @@ class MCPServerConfig(BaseSettings):
         if v.upper() not in valid_levels:
             raise ValueError(f"Invalid log level: {v}. Must be one of {valid_levels}")
         return v.upper()
-    
+
     @validator("database_pool_size")
     def validate_pool_size(cls, v: int) -> int:
         """Validate database pool size"""
         if v < 1 or v > 100:
             raise ValueError("database_pool_size must be between 1 and 100")
         return v
-    
+
     @validator("embeddings_dimension")
     def validate_embedding_dimension(cls, v: int) -> int:
         """Validate embedding dimension"""

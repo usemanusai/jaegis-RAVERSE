@@ -105,3 +105,6 @@ test_output.txt
 
 # Local MCP config with secrets (do not commit)
 mcp-configs/other/augment-code.local.json
+# Ignore all local MCP client configs with secrets
+mcp-configs/**/*.local.json
+

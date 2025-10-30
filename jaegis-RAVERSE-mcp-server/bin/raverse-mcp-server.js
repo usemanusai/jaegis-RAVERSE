@@ -119,7 +119,7 @@ function checkPackageInstalled() {
       return true;
     } catch (e) {
       // If not installed globally, try to install it via pip
-      console.log('Installing RAVERSE MCP Server package...');
+      console.error('Installing RAVERSE MCP Server package...');
       try {
         // Install specific version to match NPM package version
         execSync(`${python} -m pip install jaegis-raverse-mcp-server==${VERSION}`, { stdio: 'inherit' });
@@ -157,9 +157,9 @@ function main() {
   
   if (isDev) {
     env.LOG_LEVEL = 'DEBUG';
-    console.log('Starting RAVERSE MCP Server in development mode...');
+    console.error('Starting RAVERSE MCP Server in development mode...');
   } else {
-    console.log('Starting RAVERSE MCP Server...');
+    console.error('Starting RAVERSE MCP Server...');
   }
 
   // Get Python executable
@@ -188,12 +188,12 @@ function main() {
 
   // Handle signals
   process.on('SIGINT', () => {
-    console.log('\nShutting down RAVERSE MCP Server...');
+    console.error('\nShutting down RAVERSE MCP Server...');
     pythonProcess.kill('SIGINT');
   });
 
   process.on('SIGTERM', () => {
-    console.log('\nShutting down RAVERSE MCP Server...');
+    console.error('\nShutting down RAVERSE MCP Server...');
     pythonProcess.kill('SIGTERM');
   });
 }
