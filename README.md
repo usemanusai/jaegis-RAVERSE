@@ -27,6 +27,14 @@
 - [Overview](#overview)
 - [⚠️ Legal Disclaimer & Responsible Use](#-legal-disclaimer--responsible-use)
 - [Key Features](#key-features)
+- [Getting Started: Real-World Usage Guide](#getting-started-real-world-usage-guide)
+  - [Quick Start: Your First Analysis Workflow](#quick-start-your-first-analysis-workflow)
+  - [Step-by-Step: Reverse Engineering Web Authentication](#step-by-step-reverse-engineering-web-authentication)
+  - [Understanding the Tool Chain](#understanding-the-tool-chain)
+  - [Cloud Infrastructure Overview](#cloud-infrastructure-overview)
+  - [Common Workflows](#common-workflows)
+  - [Troubleshooting Tool Calls](#troubleshooting-tool-calls)
+
 - [Technology Stack](#technology-stack)
 - [Quick Start](#quick-start)
 - [System Architecture](#system-architecture)
@@ -228,6 +236,216 @@ Users of RAVERSE 2.0 must adhere to the following ethical principles:
 - **Memory Integration**: Hierarchical and retrieval-based memory strategies
 - **Vector Search**: Semantic similarity search using pgvector
 - **Production Ready**: Docker containerization, monitoring, and deployment guides
+
+## Getting Started: Real-World Usage Guide
+
+This is a practical, hands-on guide. Follow the steps exactly; paste the JSON blocks into your MCP client when invoking each tool. Never paste secrets into chat or files.
+
+> Security warning: Only analyze systems you own or have written permission to test. See the Legal Disclaimer above.
+
+### Quick Start: Your First Analysis Workflow
+
+Goal: In ~5 minutes, discover auth behavior for your site and generate an OpenAPI sketch.
+
+1) Set environment variables (PowerShell on Windows):
+
+```powershell
+$env:BACKEND_URL="https://jaegis-raverse.onrender.com";
+$env:PROXY_URL="https://raverse-mcp-proxy.use-manus-ai.workers.dev";
+$env:DATABASE_URL="postgres://avnadmin:***@raverse-pg-db-raverse-pg-db.i.aivencloud.com:23055/defaultdb?sslmode=require";
+$env:REDIS_URL="rediss://default:***@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056";
+$env:LOG_LEVEL="INFO"; $env:SERVER_VERSION="1.0.11";
+```
+
+2) Start the server (no install):
+
+```bash
+npx -y raverse-mcp-server@latest
+```
+
+3) In your MCP client (e.g., Augment Code), select server "raverse", then run these tools in order, pasting the JSON:
+
+- reconnaissance
+```json
+{
+  "target_url": "https://your-shop.example.com",
+  "depth": 1,
+  "include_js": true,
+  "include_sitemaps": true
+}
+```
+
+- fetch_content
+```json
+{
+  "url": "https://your-shop.example.com/_next/static/chunks/auth.abcdef.js",
+  "timeout": 20,
+  "retries": 1
+}
+```
+
+- analyze_javascript
+```json
+{
+  "js_code": "<paste JS content here>",
+  "deobfuscate": true,
+  "signals": ["HMAC","JWT","nonce","timestamp","crypto","subtle"]
+}
+```
+
+- traffic_interception (HAR mode)
+```json
+{
+  "mode": "har",
+  "har": { "log": { "entries": [/* pasted HAR entries */] } }
+}
+```
+
+- reverse_engineer_api
+```json
+{
+  "traffic_data": { "har": { "log": { "entries": [/* … */] } } },
+  "js_analysis": { "functions": ["sign","getToken"], "algos": ["HMAC-SHA256"] },
+  "emit_openapi": true
+}
+```
+
+That’s it. You’ll get endpoints, auth clues, and an initial OpenAPI sketch.
+
+### Step-by-Step: Reverse Engineering Web Authentication
+
+Use these eight tools to go from raw site → auth recipe → knowledge saved.
+
+1) reconnaissance
+```json
+{
+  "target_url": "https://your-shop.example.com",
+  "depth": 1,
+  "include_js": true,
+  "include_sitemaps": true
+}
+```
+2) fetch_content
+```json
+{
+  "url": "https://your-shop.example.com/_next/static/chunks/auth.abcdef.js",
+  "timeout": 20,
+  "retries": 1
+}
+```
+3) analyze_javascript
+```json
+{
+  "js_code": "<paste JS content here>",
+  "deobfuscate": true,
+  "signals": ["HMAC","JWT","nonce","timestamp","crypto","subtle"]
+}
+```
+4) api_pattern_matcher
+```json
+{
+  "content": "…short snippet with fetch('/api/auth/token', {…})…",
+  "hints": ["Authorization", "x-api-key", "x-signature", "bearer"]
+}
+```
+5) traffic_interception (HAR mode)
+```json
+{
+  "mode": "har",
+  "har": { "log": { "entries": [/* pasted HAR entries */] } }
+}
+```
+6) reverse_engineer_api
+```json
+{
+  "traffic_data": { "har": { "log": { "entries": [/* … */] } } },
+  "js_analysis": { "functions": ["sign","getToken"], "algos": ["HMAC-SHA256"] },
+  "emit_openapi": true
+}
+```
+7) response_classifier
+```json
+{
+  "samples": [{
+    "url": "https://your-shop.example.com/api/orders",
+    "status": 403,
+    "headers": {"x-error-code":"sig_invalid"}
+  }]
+}
+```
+8) ingest_content (save your findings for RAG)
+```json
+{
+  "content": "Auth uses HMAC-SHA256(ts|method|path|body)…",
+  "metadata": { "project":"shop", "type":"auth_notes", "env":"prod" }
+}
+```
+
+### Understanding the Tool Chain
+
+- reconnaissance → discovers candidate JS + endpoints
+- fetch_content → provides concrete JS for analysis
+- analyze_javascript → emits functions/algos/signals used by auth
+- traffic_interception → adds live request/response evidence (HAR)
+- reverse_engineer_api → fuses JS + HAR into endpoints/auth/OpenAPI
+- response_classifier → sanity-check responses and error codes
+- ingest_content → persists knowledge for search_knowledge_base
+
+Visual flow:
+
+```mermaid
+graph LR
+    A[reconnaissance] --> B[fetch_content]
+    B --> C[analyze_javascript]
+    C --> D[traffic_interception]
+    D --> E[reverse_engineer_api]
+```
+
+See the full tool reference in jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md.
+
+### Cloud Infrastructure Overview
+
+- Render Backend API: https://jaegis-raverse.onrender.com
+- Cloudflare Workers Proxy (MCP stdio isolation): https://raverse-mcp-proxy.use-manus-ai.workers.dev
+- Aiven PostgreSQL (persistent state): postgres://avnadmin:***@raverse-pg-db-raverse-pg-db.i.aivencloud.com:23055/defaultdb?sslmode=require
+- Aiven Valkey/Redis (cache, A2A messaging): rediss://default:***@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056
+
+Set only the environment variables above—no code edits. The server auto-initializes DB tables on first write. Ingestion stores content in PostgreSQL; transient caches go to Redis.
+
+### Common Workflows
+
+- Web analysis (auth focus): reconnaissance → fetch_content → analyze_javascript → traffic_interception → reverse_engineer_api → response_classifier → ingest_content
+- Binary patching (offline): disassemble_binary → analyze_wasm (if applicable) → apply_patch → verify_patch
+  - disassemble_binary
+```json
+{ "binary_path": "./bin/target.exe", "arch": "x86_64" }
+```
+  - apply_patch
+```json
+{ "binary_path": "./bin/target.exe", "patches": [{"offset":"0x401000","bytes":"90 90"}] }
+```
+  - verify_patch
+```json
+{ "binary_path": "./bin/target.exe", "checks": ["integrity","entrypoint"] }
+```
+- Knowledge base usage: search_knowledge_base after ingest_content
+```json
+{ "query": "HMAC timestamp signature format", "top_k": 5 }
+```
+
+Other helpful tools you may use in this flow: api_pattern_matcher, response_classifier, analyze_wasm, database_query, cache_operation.
+
+### Troubleshooting Tool Calls
+
+- Empty or noisy outputs: increase specificity (e.g., provide smaller JS slices to analyze_javascript; filter HAR to auth flows only)
+- Timeouts: raise timeouts to 30–60s on fetch_content or provide retries=2
+- HAR not parsed: ensure it’s a valid HTTP Archive (log.entries array present)
+- Missing DB/Redis state: verify DATABASE_URL and REDIS_URL env vars; SSL required for Aiven
+- Logs: set LOG_LEVEL=DEBUG; logs are written to stderr (never stdout) in MCP mode
+- Cache collisions: change metadata.project or add a unique tag; Redis TTL will expire old cache automatically
+- Connectivity: confirm Render and Aiven endpoints are reachable from your network
+
+If a tool response looks off, copy the high-level fields (no secrets) and open an issue. We’ll help you correlate JS signals, HAR evidence, and endpoint auth quickly.
 
 ## Technology Stack
 
