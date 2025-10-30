@@ -57,29 +57,32 @@ class AnalysisResponse(BaseModel):
 
 
 def initialize_app():
-    """Lazy initialization of RAVERSE components"""
+    """Lazy initialization of RAVERSE components - called on first request"""
     global _initialized, _orchestrator
-    
+
     if _initialized:
         return
-    
+
     try:
-        logger.info("Initializing RAVERSE application...")
+        logger.info("Initializing RAVERSE application on first request...")
         from agents.orchestrator import OrchestratingAgent
-        
+
         # Initialize orchestrator with database disabled by default
         _orchestrator = OrchestratingAgent(use_database=False)
         _initialized = True
         logger.info("RAVERSE application initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize RAVERSE: {e}", exc_info=True)
-        _initialized = True  # Mark as initialized to prevent repeated attempts
+        # Mark as initialized to prevent repeated attempts, but orchestrator remains None
+        _initialized = True
 
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize app on startup"""
-    initialize_app()
+    """App startup event - just log that we're starting"""
+    logger.info("RAVERSE API startup event triggered")
+    logger.info("Application is ready to accept requests")
+    logger.info("RAVERSE components will be initialized on first request")
 
 
 @app.get("/")
@@ -95,11 +98,12 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - always responds immediately"""
     return {
         "status": "healthy",
         "initialized": _initialized,
-        "service": "RAVERSE"
+        "service": "RAVERSE",
+        "ready": True
     }
 
 
