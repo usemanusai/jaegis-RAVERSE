@@ -341,7 +341,7 @@ Use these eight tools to go from raw site → auth recipe → knowledge saved.
   "signals": ["HMAC","JWT","nonce","timestamp","crypto","subtle"]
 }
 ```
-4) api_pattern_matcher
+4) [api_pattern_matcher](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#72-api_pattern_matcher)
 ```json
 {
   "content": "…short snippet with fetch('/api/auth/token', {…})…",
@@ -389,7 +389,7 @@ Use these eight tools to go from raw site → auth recipe → knowledge saved.
 - [traffic_interception](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#52-traffic_interception) → adds live request/response evidence (HAR)
 - [reverse_engineer_api](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#33-reverse_engineer_api) → fuses JS + HAR into endpoints/auth/OpenAPI
 - [response_classifier](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#73-response_classifier) → sanity-check responses and error codes
-- [ingest_content](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#21-ingest_content) → persists knowledge for search_knowledge_base
+- [ingest_content](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#21-ingest_content) → persists knowledge for [search_knowledge_base](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#22-search_knowledge_base)
 
 Visual flow:
 
@@ -415,20 +415,20 @@ Set only the environment variables above—no code edits. The server auto-initia
 ### Common Workflows
 
 - Web analysis (auth focus): reconnaissance → fetch_content → analyze_javascript → traffic_interception → reverse_engineer_api → response_classifier → ingest_content
-- Binary patching (offline): disassemble_binary → analyze_wasm (if applicable) → apply_patch → verify_patch
-  - disassemble_binary
+- Binary patching (offline): [disassemble_binary](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#11-disassemble_binary) → [analyze_wasm](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#34-analyze_wasm) (if applicable) → [apply_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#13-apply_patch) → [verify_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#14-verify_patch)
+  - [disassemble_binary](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#11-disassemble_binary)
 ```json
 { "binary_path": "./bin/target.exe", "architecture": "x86_64" }
 ```
-  - apply_patch
+  - [apply_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#13-apply_patch)
 ```json
 { "binary_path": "./bin/target.exe", "patches": [{"offset":"0x401000","bytes":"90 90"}] }
 ```
-  - verify_patch
+  - [verify_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#14-verify_patch)
 ```json
 { "binary_path": "./bin/target.exe", "checks": ["integrity","entrypoint"] }
 ```
-- Knowledge base usage: search_knowledge_base after ingest_content
+- Knowledge base usage: [search_knowledge_base](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#22-search_knowledge_base) after ingest_content
 ```json
 { "query": "HMAC timestamp signature format", "top_k": 5 }
 ```
@@ -437,7 +437,7 @@ Set only the environment variables above—no code edits. The server auto-initia
 
 Goal: Analyze a native binary that loads a WASM module, correlate behavior, patch both, and verify end-to-end.
 
-1) disassemble_binary (native)
+1) [disassemble_binary](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#11-disassemble_binary) (native)
 ```json
 {
   "binary_path": "./bin/app_with_wasm.exe",
@@ -445,7 +445,7 @@ Goal: Analyze a native binary that loads a WASM module, correlate behavior, patc
 }
 ```
 
-2) analyze_wasm (module)
+2) [analyze_wasm](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#34-analyze_wasm) (module)
 - If you have the WASM file on disk (e.g., ./bin/module.wasm), base64-encode its bytes and pass as wasm_data.
 ```json
 {
@@ -454,9 +454,9 @@ Goal: Analyze a native binary that loads a WASM module, correlate behavior, patc
 ```
 
 3) Correlate findings
-- Map exported/imported function names from analyze_wasm to call sites and string refs in the native disassembly (e.g., functions like wasm_sign or sha256_update). Note intersections and control points.
+- Map exported/imported function names from [analyze_wasm](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#34-analyze_wasm) to call sites and string refs in the native disassembly (e.g., functions like wasm_sign or sha256_update). Note intersections and control points.
 
-4) apply_patch (native binary)
+4) [apply_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#13-apply_patch) (native binary)
 ```json
 {
   "binary_path": "./bin/app_with_wasm.exe",
@@ -468,7 +468,7 @@ Goal: Analyze a native binary that loads a WASM module, correlate behavior, patc
 }
 ```
 
-5) apply_patch (wasm module)
+5) [apply_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#13-apply_patch) (wasm module)
 - Save the WASM module to disk (e.g., ./bin/module.wasm). Patch offsets refer to the raw module bytes.
 ```json
 {
@@ -481,7 +481,7 @@ Goal: Analyze a native binary that loads a WASM module, correlate behavior, patc
 }
 ```
 
-6) verify_patch (both components)
+6) [verify_patch](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#14-verify_patch) (both components)
 - Use the backup paths returned by apply_patch (or your own original copies).
 ```json
 {
@@ -502,7 +502,7 @@ Tips
 - Prefer patching the smallest component that achieves the goal (WASM vs native)
 
 
-Other helpful tools you may use in this flow: api_pattern_matcher, response_classifier, analyze_wasm, database_query, cache_operation.
+Other helpful tools you may use in this flow: [api_pattern_matcher](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#72-api_pattern_matcher), response_classifier, [analyze_wasm](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#34-analyze_wasm), [database_query](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#41-database_query), [cache_operation](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#42-cache_operation).
 
 ### Troubleshooting Tool Calls
 
