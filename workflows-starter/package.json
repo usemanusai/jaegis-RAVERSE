@@ -1,0 +1,61 @@
+{
+	"name": "raverse-workflows",
+	"version": "1.0.0",
+	"description": "RAVERSE Cloudflare Workflows Integration - Hybrid-Cloud Architecture",
+	"main": "src/index.ts",
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"start": "wrangler dev",
+		"dev": "wrangler dev --local",
+		"test": "jest",
+		"test:integration": "jest test-integration.ts",
+		"test:watch": "jest --watch",
+		"build": "tsc",
+		"lint": "eslint src/**/*.ts",
+		"format": "prettier --write src/**/*.ts",
+		"db:create": "wrangler d1 create raverse-workflows",
+		"db:init": "wrangler d1 execute raverse-workflows --file=./schema.sql",
+		"kv:create": "npm run kv:create:cache && npm run kv:create:state",
+		"kv:create:cache": "wrangler kv:namespace create RAVERSE_CACHE && wrangler kv:namespace create RAVERSE_CACHE --preview",
+		"kv:create:state": "wrangler kv:namespace create WORKFLOW_STATE && wrangler kv:namespace create WORKFLOW_STATE --preview",
+		"setup": "npm run kv:create && npm run db:create && npm run db:init",
+		"verify": "npm run test:integration",
+		"clean": "rm -rf dist build .wrangler"
+	},
+	"dependencies": {
+		"cloudflare": "^1.0.0"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250417.0",
+		"@jest/globals": "^29.7.0",
+		"@types/jest": "^29.5.8",
+		"@typescript-eslint/eslint-plugin": "^6.11.0",
+		"@typescript-eslint/parser": "^6.11.0",
+		"eslint": "^8.54.0",
+		"jest": "^29.7.0",
+		"prettier": "^3.1.0",
+		"ts-jest": "^29.1.1",
+		"typescript": "^5.0.4",
+		"wrangler": "^4.45.2"
+	},
+	"packageManager": "pnpm@9.1.4",
+	"engines": {
+		"pnpm": "^9.1.4",
+		"node": ">=18.0.0"
+	},
+	"pnpm": {
+		"overrides": {
+			"esbuild": "0.21.4"
+		}
+	},
+	"keywords": [
+		"raverse",
+		"cloudflare",
+		"workflows",
+		"binary-analysis",
+		"hybrid-cloud",
+		"edge-computing"
+	],
+	"author": "RAVERSE Team",
+	"license": "MIT"
+}

@@ -1,0 +1,121 @@
+// RAVERSE Cloudflare Workflows Configuration
+// Hybrid-Cloud Architecture Integration
+// Combines Cloudflare Workers (edge) with Render deployment (origin)
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "raverse-workflows",
+	"main": "src/index.ts",
+	"compatibility_date": "2024-10-22",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": {
+		"enabled": true
+	},
+
+	/**
+	 * Environment Variables
+	 * Production configuration for RAVERSE integration
+	 */
+	"vars": {
+		"RAVERSE_API_URL": "https://jaegis-raverse.onrender.com",
+		"RAVERSE_HEALTH_CHECK_INTERVAL": "300",
+		"CACHE_TTL_SECONDS": "3600",
+		"MAX_RETRIES": "3",
+		"RETRY_DELAY_MS": "1000",
+		"WORKFLOW_TIMEOUT_MINUTES": "30",
+		"ENABLE_EDGE_CACHING": "true",
+		"ENABLE_HYBRID_ROUTING": "true"
+	},
+
+	/**
+	 * Secrets (stored securely, not in version control)
+	 * Set these using: wrangler secret put SECRET_NAME
+	 */
+	// "secrets": ["OPENROUTER_API_KEY", "RAVERSE_AUTH_TOKEN"]
+
+	/**
+	 * KV Namespace Bindings
+	 * Used for edge caching and state management
+	 */
+	"kv_namespaces": [
+		{
+			"binding": "RAVERSE_CACHE",
+			"id": "raverse-cache-kv",
+			"preview_id": "raverse-cache-preview"
+		},
+		{
+			"binding": "WORKFLOW_STATE",
+			"id": "workflow-state-kv",
+			"preview_id": "workflow-state-preview"
+		}
+	],
+
+	/**
+	 * D1 Database Bindings
+	 * Used for persistent state and workflow history
+	 */
+	"d1_databases": [
+		{
+			"binding": "RAVERSE_DB",
+			"database_name": "raverse-workflows",
+			"database_id": "raverse-workflows-db"
+		}
+	],
+
+	/**
+	 * Service Bindings
+	 * For communication between multiple Workers
+	 */
+	"services": [
+		{
+			"binding": "RAVERSE_API",
+			"service": "raverse-api-proxy",
+			"environment": "production"
+		}
+	],
+
+	/**
+	 * Workflows Bindings
+	 * Define all RAVERSE workflows
+	 */
+	"workflows": [
+		{
+			"name": "binary-analysis",
+			"binding": "BINARY_ANALYSIS_WORKFLOW",
+			"class_name": "BinaryAnalysisWorkflow"
+		},
+		{
+			"name": "multi-step-analysis",
+			"binding": "MULTI_STEP_WORKFLOW",
+			"class_name": "MultiStepAnalysisWorkflow"
+		},
+		{
+			"name": "cache-management",
+			"binding": "CACHE_WORKFLOW",
+			"class_name": "CacheManagementWorkflow"
+		},
+		{
+			"name": "hybrid-routing",
+			"binding": "HYBRID_ROUTING_WORKFLOW",
+			"class_name": "HybridRoutingWorkflow"
+		}
+	],
+
+	/**
+	 * Analytics Engine Binding
+	 * For monitoring and observability
+	 */
+	"analytics_engine_datasets": [
+		"RAVERSE_METRICS",
+		"WORKFLOW_PERFORMANCE"
+	],
+
+	/**
+	 * Triggers for scheduled workflows
+	 */
+	"triggers": {
+		"crons": [
+			"0 */6 * * *"
+		]
+	}
+}
+//
