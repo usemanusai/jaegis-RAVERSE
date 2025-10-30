@@ -383,13 +383,13 @@ Use these eight tools to go from raw site → auth recipe → knowledge saved.
 
 ### Understanding the Tool Chain
 
-- reconnaissance → discovers candidate JS + endpoints
-- fetch_content → provides concrete JS for analysis
-- analyze_javascript → emits functions/algos/signals used by auth
-- traffic_interception → adds live request/response evidence (HAR)
-- reverse_engineer_api → fuses JS + HAR into endpoints/auth/OpenAPI
-- response_classifier → sanity-check responses and error codes
-- ingest_content → persists knowledge for search_knowledge_base
+- [reconnaissance](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#31-reconnaissance) → discovers candidate JS + endpoints
+- [fetch_content](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#44-fetch_content) → provides concrete JS for analysis
+- [analyze_javascript](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#32-analyze_javascript) → emits functions/algos/signals used by auth
+- [traffic_interception](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#52-traffic_interception) → adds live request/response evidence (HAR)
+- [reverse_engineer_api](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#33-reverse_engineer_api) → fuses JS + HAR into endpoints/auth/OpenAPI
+- [response_classifier](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#73-response_classifier) → sanity-check responses and error codes
+- [ingest_content](jaegis-RAVERSE-mcp-server/TOOLS_REGISTRY_COMPLETE.md#21-ingest_content) → persists knowledge for search_knowledge_base
 
 Visual flow:
 
@@ -418,7 +418,7 @@ Set only the environment variables above—no code edits. The server auto-initia
 - Binary patching (offline): disassemble_binary → analyze_wasm (if applicable) → apply_patch → verify_patch
   - disassemble_binary
 ```json
-{ "binary_path": "./bin/target.exe", "arch": "x86_64" }
+{ "binary_path": "./bin/target.exe", "architecture": "x86_64" }
 ```
   - apply_patch
 ```json
@@ -432,6 +432,75 @@ Set only the environment variables above—no code edits. The server auto-initia
 ```json
 { "query": "HMAC timestamp signature format", "top_k": 5 }
 ```
+
+#### Binary + WASM Combined Analysis
+
+Goal: Analyze a native binary that loads a WASM module, correlate behavior, patch both, and verify end-to-end.
+
+1) disassemble_binary (native)
+```json
+{
+  "binary_path": "./bin/app_with_wasm.exe",
+  "architecture": "x86_64"
+}
+```
+
+2) analyze_wasm (module)
+- If you have the WASM file on disk (e.g., ./bin/module.wasm), base64-encode its bytes and pass as wasm_data.
+```json
+{
+  "wasm_data": "AGFzbQEAAAABAAA..."
+}
+```
+
+3) Correlate findings
+- Map exported/imported function names from analyze_wasm to call sites and string refs in the native disassembly (e.g., functions like wasm_sign or sha256_update). Note intersections and control points.
+
+4) apply_patch (native binary)
+```json
+{
+  "binary_path": "./bin/app_with_wasm.exe",
+  "backup": true,
+  "patches": [
+    {"offset": "0x40123A", "bytes": "90 90"},
+    {"offset": "0x402010", "bytes": "EB 0A"}
+  ]
+}
+```
+
+5) apply_patch (wasm module)
+- Save the WASM module to disk (e.g., ./bin/module.wasm). Patch offsets refer to the raw module bytes.
+```json
+{
+  "binary_path": "./bin/module.wasm",
+  "backup": true,
+  "patches": [
+    {"offset": "0x0000010", "bytes": "00"},
+    {"offset": "0x00000A2", "bytes": "01"}
+  ]
+}
+```
+
+6) verify_patch (both components)
+- Use the backup paths returned by apply_patch (or your own original copies).
+```json
+{
+  "original_binary": "./bin/app_with_wasm.exe.bak",
+  "patched_binary": "./bin/app_with_wasm.exe"
+}
+```
+```json
+{
+  "original_binary": "./bin/module.wasm.bak",
+  "patched_binary": "./bin/module.wasm"
+}
+```
+
+Tips
+- Keep small, testable patch deltas (first NOP a branch, then widen scope)
+- Re-run wasm analysis after patches to confirm function sizes/indices stable
+- Prefer patching the smallest component that achieves the goal (WASM vs native)
+
 
 Other helpful tools you may use in this flow: api_pattern_matcher, response_classifier, analyze_wasm, database_query, cache_operation.
 
