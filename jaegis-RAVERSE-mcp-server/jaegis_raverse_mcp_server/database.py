@@ -5,6 +5,8 @@ from psycopg2 import pool
 import os
 import tempfile
 from urllib.parse import quote
+import re
+
 
 from typing import Optional, List, Dict, Any
 from .config import MCPServerConfig
@@ -44,6 +46,9 @@ class DatabaseManager:
             if ca_content:
                 # Write CA content to a temporary file once per process
                 if not getattr(self, "_ca_file_path", None):
+                    # Support JSON-escaped newlines ("\n") commonly used in config files
+                    if "\\n" in ca_content and "\n" not in ca_content.strip():
+                        ca_content = ca_content.replace("\\n", "\n")
                     fd, temp_path = tempfile.mkstemp(prefix="aiven_ca_", suffix=".crt")
                     with os.fdopen(fd, "wb") as f:
                         f.write(ca_content.encode("utf-8"))
@@ -55,9 +60,11 @@ class DatabaseManager:
                     cert_path_url = quote(self._ca_file_path.replace("\\", "/"), safe="/:")
                     dsn = f"{dsn}{sep}sslrootcert={cert_path_url}"
                     sep = "&"
-                # Enforce verify-full if not already set
+                # Enforce verify-full
                 if "sslmode=" not in dsn:
                     dsn = f"{dsn}{sep}sslmode=verify-full"
+                elif "sslmode=verify-full" not in dsn:
+                    dsn = re.sub(r"sslmode=[^&]+", "sslmode=verify-full", dsn)
         except Exception as e:
             logger.warning(f"Failed to apply CA certificate to DSN: {str(e)}")
         return dsn

@@ -254,6 +254,7 @@ $env:BACKEND_URL="https://jaegis-raverse.onrender.com";
 $env:PROXY_URL="https://raverse-mcp-proxy.use-manus-ai.workers.dev";
 $env:DATABASE_URL="postgres://avnadmin:***@raverse-pg-db-raverse-pg-db.i.aivencloud.com:23055/defaultdb?sslmode=require";
 $env:REDIS_URL="rediss://default:***@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056";
+$env:POSTGRES_CA_CERT="-----BEGIN CERTIFICATE-----`n...your Aiven CA pem lines...`n-----END CERTIFICATE-----";
 $env:LOG_LEVEL="INFO"; $env:SERVER_VERSION="1.0.11";
 ```
 
@@ -513,6 +514,7 @@ Other helpful tools you may use in this flow: [api_pattern_matcher](jaegis-RAVER
 - Logs: set LOG_LEVEL=DEBUG; logs are written to stderr (never stdout) in MCP mode
 - Cache collisions: change metadata.project or add a unique tag; Redis TTL will expire old cache automatically
 - Connectivity: confirm Render and Aiven endpoints are reachable from your network
+- MCP config and TLS guide: see docs/SECURITY_MCP_CONFIG.md
 
 If a tool response looks off, copy the high-level fields (no secrets) and open an issue. We’ll help you correlate JS signals, HAR evidence, and endpoint auth quickly.
 
