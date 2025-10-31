@@ -31,7 +31,7 @@ def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> No
     level = getattr(logging, log_level.upper(), logging.INFO)
     
     handlers = [
-        logging.StreamHandler(sys.stdout),
+        logging.StreamHandler(sys.stderr),
     ]
     
     if log_file:

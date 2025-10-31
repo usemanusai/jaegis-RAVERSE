@@ -73,7 +73,7 @@ class MCPProtocolHandler:
                 },
                 "serverInfo": {
                     "name": "raverse-mcp-server",
-                    "version": "1.0.10",
+                    "version": "1.0.11",
                 },
             },
         }
