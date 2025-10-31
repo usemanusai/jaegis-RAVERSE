@@ -18,7 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const VERSION = '1.0.12';
+const VERSION = '1.0.13';
 const PACKAGE_NAME = 'raverse-mcp-server';
 
 // Parse command line arguments
@@ -107,30 +107,38 @@ function checkPythonAvailable() {
   }
 }
 
-// Check if package is installed
-function checkPackageInstalled() {
-  try {
-    const { execSync } = require('child_process');
-    const python = getPythonExecutable();
+// Ensure correct Python package version is installed
+function ensurePythonPackageVersion() {
+  const { execSync } = require('child_process');
+  const python = getPythonExecutable();
 
-    // Try to import the package
+  function getInstalledVersion() {
     try {
-      execSync(`${python} -c "import jaegis_raverse_mcp_server"`, { stdio: 'pipe' });
-      return true;
-    } catch (e) {
-      // If not installed globally, try to install it via pip
-      console.error('Installing RAVERSE MCP Server package...');
-      try {
-        // Install specific version to match NPM package version
-        execSync(`${python} -m pip install jaegis-raverse-mcp-server==${VERSION}`, { stdio: 'inherit' });
-        return true;
-      } catch (installError) {
-        return false;
-      }
+      const out = execSync(`${python} -m pip show jaegis-raverse-mcp-server`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+      const m = out.match(/^Version:\s*(.+)$/mi);
+      return m ? m[1].trim() : null;
+    } catch (_) {
+      return null;
     }
-  } catch (e) {
+  }
+
+  let installed = getInstalledVersion();
+  if (installed !== VERSION) {
+    console.error(`Installing/aligning Python package jaegis-raverse-mcp-server==${VERSION} (found ${installed || 'none'})...`);
+    try {
+      execSync(`${python} -m pip install --upgrade --no-input jaegis-raverse-mcp-server==${VERSION}`, { stdio: 'inherit' });
+    } catch (e) {
+      console.error('Failed to install required Python package version:', e.message || String(e));
+      return false;
+    }
+    installed = getInstalledVersion();
+  }
+
+  if (installed !== VERSION) {
+    console.error(`Version mismatch after install. Expected ${VERSION}, found ${installed || 'none'}.`);
     return false;
   }
+  return true;
 }
 
 // Main function
@@ -142,13 +150,11 @@ function main() {
     process.exit(1);
   }
 
-  // Check if package is installed
-  if (!checkPackageInstalled()) {
-    console.error('ERROR: RAVERSE MCP Server package could not be installed');
-    console.error('Please install it manually:');
-    console.error('  pip install jaegis-raverse-mcp-server');
-    console.error('Or use npm:');
-    console.error('  npm install -g raverse-mcp-server');
+  // Ensure correct Python package version is present
+  if (!ensurePythonPackageVersion()) {
+    console.error('ERROR: Failed to ensure jaegis-raverse-mcp-server matches required version.');
+    console.error('Try manually aligning:');
+    console.error(`  ${getPythonExecutable()} -m pip install --upgrade jaegis-raverse-mcp-server==${VERSION}`);
     process.exit(1);
   }
 

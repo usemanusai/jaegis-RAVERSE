@@ -3,7 +3,7 @@ JAEGIS RAVERSE MCP Server
 Model Context Protocol server for RAVERSE AI Multi-Agent Binary Patching System
 """
 
-__version__ = "1.0.11"
+__version__ = "1.0.13"
 __author__ = "RAVERSE Team"
 __license__ = "MIT"
 
