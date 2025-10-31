@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jaegis-raverse-mcp-server"
-version = "1.0.11"
+version = "1.0.12"
 description = "MCP Server for RAVERSE - AI Multi-Agent Binary Patching System with 35 tools, NPX/NPM/PyPI support, and 20+ client configurations"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "RAVERSE Team", email = "team@raverse.ai"}
@@ -47,8 +47,10 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -101,15 +103,15 @@ packages = ["jaegis_raverse_mcp_server"]
 
 [tool.black]
 line-length = 100
-target-version = ["py313"]
+target-version = ["py310"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py310"
 select = ["E", "F", "W", "I"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false

@@ -18,7 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const VERSION = '1.0.11';
+const VERSION = '1.0.12';
 const PACKAGE_NAME = 'raverse-mcp-server';
 
 // Parse command line arguments
@@ -137,8 +137,8 @@ function checkPackageInstalled() {
 function main() {
   // Check Python availability
   if (!checkPythonAvailable()) {
-    console.error('ERROR: Python 3.13+ is required but not found in PATH');
-    console.error('Please install Python 3.13 or higher from https://www.python.org/');
+    console.error('ERROR: Python 3.10+ is required but not found in PATH');
+    console.error('Please install Python 3.10 or higher from https://www.python.org/');
     process.exit(1);
   }
 
