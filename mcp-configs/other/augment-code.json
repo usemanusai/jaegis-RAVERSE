@@ -2,12 +2,12 @@
   "mcpServers": {
     "raverse": {
       "command": "npx",
-      "args": ["-y", "raverse-mcp-server@latest"],
+      "args": ["-y", "raverse-mcp-server@1.0.12"],
       "env": {
         "PROXY_URL": "https://raverse-mcp-proxy.use-manus-ai.workers.dev",
         "BACKEND_URL": "https://jaegis-raverse.onrender.com",
         "LOG_LEVEL": "INFO",
-        "SERVER_VERSION": "1.0.8",
+        "SERVER_VERSION": "1.0.12",
 
         "REDIS_URL": "rediss://default:REDACTED@raverse-valkey-cache-raverse-pg-db.g.aivencloud.com:23056",
         "REDIS_HOST": "raverse-valkey-cache-raverse-pg-db.g.aivencloud.com",
