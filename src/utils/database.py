@@ -255,18 +255,26 @@ class DatabaseManager:
                 logger.info(f"Cleaned up {deleted} old cache entries")
                 return deleted
     
-    def execute_query(self, query: str, params: Tuple = None):
+    def execute_query(self, query: str, params: Tuple = None) -> Optional[List[Dict]]:
         """
         Execute a query with parameters.
 
         Args:
             query: SQL query string
             params: Query parameters tuple
+
+        Returns:
+            List of dictionaries containing results if query returns data, None otherwise
         """
         with self.get_connection() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(query, params)
                 logger.debug(f"Executed query: {query[:100]}...")
+
+                # If there are results, fetch them
+                if cur.description is not None:
+                    return [dict(row) for row in cur.fetchall()]
+                return None
 
     def close(self):
         """Close all connections in the pool"""
