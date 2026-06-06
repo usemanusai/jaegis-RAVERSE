@@ -247,19 +247,21 @@ MEMORY_HARDWARE_REQUIREMENTS = {
 
 def get_agent_memory_config(
     agent_type: str,
-    preset: str = "none"
+    strategy_override: str = None
 ) -> Dict[str, Any]:
     """
     Get memory configuration for an agent.
 
     Args:
         agent_type: Type of agent (e.g., "version_manager", "knowledge_base")
-        preset: Memory preset to use ("none", "light", "medium", "heavy")
-                If "none", memory is disabled (default)
+        strategy_override: Memory preset to use ("none", "light", "medium", "heavy")
+                If "none" or None, memory is disabled (default)
 
     Returns:
         Dictionary with memory configuration
     """
+    preset = strategy_override if strategy_override is not None else "none"
+
     # If preset is specified, use it
     if preset != "none" and preset in MEMORY_PRESETS:
         preset_config = MEMORY_PRESETS[preset]
