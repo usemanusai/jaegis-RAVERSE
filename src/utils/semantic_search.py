@@ -7,7 +7,7 @@ and pgvector for similarity search.
 """
 
 import numpy as np
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 from utils.database import DatabaseManager
 from utils.embeddings_v2 import EmbeddingGenerator, get_embedding_generator
 from utils.cache import CacheManager
@@ -108,18 +108,21 @@ class SemanticSearchEngine:
         start_time = time.time()
         ids = []
         
-        for code, embedding, metadata in zip(code_snippets, embeddings, metadata_list):
-            query = """
-                INSERT INTO code_embeddings (binary_hash, code_snippet, embedding, metadata)
-                VALUES (%s, %s, %s, %s)
-                RETURNING id
-            """
-            result = self.db.execute_query(
-                query,
-                (binary_hash, code, embedding.tolist(), metadata)
-            )
-            if result:
-                ids.append(result[0]['id'])
+        query = """
+            INSERT INTO code_embeddings (binary_hash, code_snippet, embedding, metadata)
+            VALUES %s
+            RETURNING id
+        """
+
+        # Prepare data for execute_values
+        data = [
+            (binary_hash, code, embedding.tolist(), metadata)
+            for code, embedding, metadata in zip(code_snippets, embeddings, metadata_list)
+        ]
+
+        results = self.db.execute_values_query(query, data, fetch=True)
+        if results:
+            ids = [row['id'] for row in results]
         
         duration = time.time() - start_time
         metrics_collector.record_database_query('batch_insert_embeddings', duration)
@@ -284,7 +287,7 @@ class SemanticSearchEngine:
         params = []
         
         for key, value in metadata_filter.items():
-            conditions.append(f"metadata->>%s = %s")
+            conditions.append("metadata->>%s = %s")
             params.extend([key, str(value)])
         
         where_clause = " AND ".join(conditions)

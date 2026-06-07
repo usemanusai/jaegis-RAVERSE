@@ -8,9 +8,8 @@ import os
 import logging
 import hashlib
 import json
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Tuple
 from contextlib import contextmanager
-import psycopg2
 from psycopg2.extras import RealDictCursor, execute_values
 from psycopg2.pool import ThreadedConnectionPool
 
@@ -274,6 +273,31 @@ class DatabaseManager:
                 # If there are results, fetch them
                 if cur.description is not None:
                     return [dict(row) for row in cur.fetchall()]
+                return None
+
+    def execute_values_query(self, query: str, argslist: List[Tuple], template: str = None, page_size: int = 100, fetch: bool = False) -> Optional[List[Dict]]:
+        """
+        Execute a statement using psycopg2.extras.execute_values for batch inserts.
+
+        Args:
+            query: The query to execute. It must contain a single %s placeholder,
+                   which will be replaced by the records.
+            argslist: Sequence of sequences or dictionaries containing the arguments
+                      to send to the query.
+            template: The snippet to merge to every item in argslist.
+            page_size: Maximum number of records to include in each statement.
+            fetch: If True, fetches and returns the results (e.g. for RETURNING clauses).
+
+        Returns:
+            List of dictionaries containing results if fetch=True, None otherwise.
+        """
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                results = execute_values(cur, query, argslist, template=template, page_size=page_size, fetch=fetch)
+                logger.debug(f"Executed batch values query: {query[:100]}... with {len(argslist)} items")
+
+                if fetch and results is not None:
+                    return [dict(row) for row in results]
                 return None
 
     def close(self):
