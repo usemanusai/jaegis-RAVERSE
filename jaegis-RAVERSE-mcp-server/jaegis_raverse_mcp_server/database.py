@@ -144,6 +144,10 @@ class DatabaseManager:
         threshold: float = 0.7,
     ) -> List[Dict[str, Any]]:
         """Perform vector similarity search"""
+        # Validate table name to prevent SQL injection
+        if not re.match(r'^[a-zA-Z0-9_.]+$', table):
+            raise DatabaseError(f"Invalid table name: {table}")
+
         try:
             query = f"""
                 SELECT *,

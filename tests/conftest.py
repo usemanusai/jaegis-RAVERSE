@@ -16,6 +16,11 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import prometheus_client
+# Clear registry to prevent duplicate metrics errors across test files
+prometheus_client.REGISTRY._names_to_collectors.clear()
+prometheus_client.REGISTRY._collector_to_names.clear()
+
 from agents.orchestrator import OrchestratingAgent
 
 

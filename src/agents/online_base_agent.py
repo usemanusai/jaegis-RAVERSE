@@ -568,20 +568,16 @@ class OnlineBaseAgent(ABC):
                     LIMIT %s
                 """, (agent_type, limit))
 
-                messages = []
-                for row in cursor.fetchall():
-                    messages.append({
-                        "message_id": str(row[0]),
-                        "sender_agent": row[1],
-                        "receiver_agent": row[2],
-                        "message_type": row[3],
-                        "payload": json.loads(row[4]) if isinstance(row[4], str) else row[4],
-                        "timestamp": row[5].isoformat() if row[5] else None,
-                        "correlation_id": str(row[6]),
-                        "priority": row[7]
-                    })
-
-                return messages
+                return [{
+                    "message_id": str(row[0]),
+                    "sender_agent": row[1],
+                    "receiver_agent": row[2],
+                    "message_type": row[3],
+                    "payload": json.loads(row[4]) if isinstance(row[4], str) else row[4],
+                    "timestamp": row[5].isoformat() if row[5] else None,
+                    "correlation_id": str(row[6]),
+                    "priority": row[7]
+                } for row in cursor]
 
         except Exception as e:
             self.logger.warning(f"Failed to retrieve A2A messages: {e}")

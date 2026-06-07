@@ -14,11 +14,31 @@ def run_command(cmd, description):
     print(f"\n{'='*80}")
     print(f"STEP: {description}")
     print(f"{'='*80}")
-    print(f"Command: {cmd}\n")
+
+    # Format command for printing
+    if isinstance(cmd, list) and len(cmd) > 0 and isinstance(cmd[0], list):
+        cmd_str = " | ".join([" ".join(c) for c in cmd])
+    else:
+        cmd_str = " ".join(cmd) if isinstance(cmd, list) else str(cmd)
+    print(f"Command: {cmd_str}\n")
     
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=False, text=True)
-        if result.returncode == 0:
+        if isinstance(cmd, list) and len(cmd) > 0 and isinstance(cmd[0], list):
+            # Pipeline
+            p = subprocess.Popen(cmd[0], stdout=subprocess.PIPE, text=True)
+            for c in cmd[1:-1]:
+                prev_p = p
+                p = subprocess.Popen(c, stdin=prev_p.stdout, stdout=subprocess.PIPE, text=True)
+                prev_p.stdout.close() # Close in parent to ensure SIGPIPE works properly
+            result = subprocess.run(cmd[-1], stdin=p.stdout, capture_output=False, text=True)
+            p.stdout.close() # Close the last intermediate process's stdout
+            returncode = result.returncode
+        else:
+            # Single command
+            result = subprocess.run(cmd, shell=False, capture_output=False, text=True)
+            returncode = result.returncode
+
+        if returncode == 0:
             print(f"\n✅ {description}: PASSED")
             return True
         else:
@@ -39,31 +59,34 @@ def main():
     
     # Step 1: Run unit tests
     results["unit_tests"] = run_command(
-        "python -m pytest tests/unit/ -v --tb=short",
+        ["python", "-m", "pytest", "tests/unit/", "-v", "--tb=short"],
         "Unit Tests (112 cases)"
     )
     
     # Step 2: Run integration tests
     results["integration_tests"] = run_command(
-        "python -m pytest tests/integration/ -v --tb=short",
+        ["python", "-m", "pytest", "tests/integration/", "-v", "--tb=short"],
         "Integration Tests (30 cases)"
     )
     
     # Step 3: Run E2E tests
     results["e2e_tests"] = run_command(
-        "python -m pytest tests/e2e/ -v --tb=short",
+        ["python", "-m", "pytest", "tests/e2e/", "-v", "--tb=short"],
         "End-to-End Tests (24 cases)"
     )
     
     # Step 4: Run all tests with coverage
     results["coverage"] = run_command(
-        "python -m pytest tests/ -v --cov=agents --cov-report=html --cov-report=term",
+        ["python", "-m", "pytest", "tests/", "-v", "--cov=agents", "--cov-report=html", "--cov-report=term"],
         "All Tests with Coverage Analysis"
     )
     
     # Step 5: Verify coverage
     results["coverage_check"] = run_command(
-        "python -m pytest tests/ --cov=agents --cov-report=term-missing | grep -E 'TOTAL|agents'",
+        [
+            ["python", "-m", "pytest", "tests/", "--cov=agents", "--cov-report=term-missing"],
+            ["grep", "-E", "TOTAL|agents"]
+        ],
         "Coverage Verification (>85% required)"
     )
     

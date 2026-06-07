@@ -5,6 +5,7 @@ import tempfile
 import os
 from jaegis_raverse_mcp_server.tools_binary_analysis import BinaryAnalysisTools
 from jaegis_raverse_mcp_server.tools_web_analysis import WebAnalysisTools
+from jaegis_raverse_mcp_server.tools_infrastructure import InfrastructureTools
 from jaegis_raverse_mcp_server.errors import ValidationError
 
 
@@ -141,6 +142,56 @@ class TestWebAnalysisTools:
         analysis_data = {"headers": {}, "endpoints": []}
         result = WebAnalysisTools.security_analysis(analysis_data)
         assert result.success is True
+
+
+class TestDatabaseQueryValidation:
+    """Test security validation of database queries"""
+
+    def test_standard_select_passes(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("SELECT * FROM users")
+        assert res.success is True
+
+    def test_string_literal_bypasses_pass(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("SELECT * FROM users WHERE name = 'UPDATE'")
+        assert res.success is True
+        res2 = tools.database_query('SELECT * FROM "users" WHERE name = \'hello; DROP TABLE\'')
+        assert res2.success is True
+
+    def test_non_select_fails(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("UPDATE users SET name='test'")
+        assert res.success is False
+        assert "Only SELECT queries are permitted" in res.error
+
+    def test_multiple_statements_fails(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("SELECT * FROM users; DROP TABLE users;")
+        assert res.success is False
+        assert "Multiple statements are not permitted" in res.error
+
+    def test_dml_inside_cte_fails(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("WITH updated AS (UPDATE users SET name = 'test' RETURNING *) SELECT * FROM updated;")
+        assert res.success is False
+        assert "Query contains potentially dangerous operations" in res.error
+
+    def test_select_into_fails(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("SELECT * INTO new_table FROM old_table")
+        assert res.success is False
+        assert "Query contains potentially dangerous operations" in res.error
+
+    def test_comment_bypass_fails(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("SELECT 1 -- '\n; DROP TABLE users; -- '")
+        assert res.success is False
+
+    def test_cte_select_passes(self):
+        tools = InfrastructureTools(None, None)
+        res = tools.database_query("WITH cte AS (SELECT 1) SELECT * FROM cte")
+        assert res.success is True
 
 
 class TestErrorHandling:

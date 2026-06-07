@@ -5,9 +5,8 @@ Provides REST API endpoints for binary analysis and patching
 
 import logging
 import os
-import json
 from typing import Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
