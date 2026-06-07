@@ -282,16 +282,55 @@ class TestDeepResearchConfiguration:
         """Test getting fallback model."""
         from config.deep_research_settings import get_fallback_model
         
+        # Test basic fallback for TOPIC_ENHANCER
         fallback = get_fallback_model(
             "DEEP_RESEARCH_TOPIC_ENHANCER",
             "anthropic/claude-3.5-sonnet:free"
         )
-        
         assert fallback != "anthropic/claude-3.5-sonnet:free"
         assert fallback in [
             "meta-llama/llama-3.3-70b-instruct:free",
             "mistralai/mistral-7b-instruct:free"
         ]
+
+        # Test basic fallback for WEB_RESEARCHER
+        fallback_web = get_fallback_model(
+            "DEEP_RESEARCH_WEB_RESEARCHER",
+            "anthropic/claude-3.5-sonnet:free"
+        )
+        assert fallback_web != "anthropic/claude-3.5-sonnet:free"
+        assert fallback_web in [
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "qwen/qwen-2.5-72b-instruct:free"
+        ]
+
+        # Test basic fallback for CONTENT_ANALYZER
+        fallback_content = get_fallback_model(
+            "DEEP_RESEARCH_CONTENT_ANALYZER",
+            "meta-llama/llama-3.3-70b-instruct:free"
+        )
+        assert fallback_content != "meta-llama/llama-3.3-70b-instruct:free"
+        assert fallback_content in [
+            "anthropic/claude-3.5-sonnet:free",
+            "qwen/qwen-2.5-72b-instruct:free"
+        ]
+
+        # Test when primary model is the first fallback model
+        # For topic_enhancer, first fallback is "meta-llama/llama-3.3-70b-instruct:free"
+        # If we pass that as primary, it should return "mistralai/mistral-7b-instruct:free"
+        fallback_same_as_first = get_fallback_model(
+            "DEEP_RESEARCH_TOPIC_ENHANCER",
+            "meta-llama/llama-3.3-70b-instruct:free"
+        )
+        assert fallback_same_as_first == "mistralai/mistral-7b-instruct:free"
+
+        # Test with unknown agent type (should return default fallback)
+        fallback_unknown = get_fallback_model(
+            "UNKNOWN_AGENT_TYPE",
+            "anthropic/claude-3.5-sonnet:free"
+        )
+        assert fallback_unknown == "meta-llama/llama-3.3-70b-instruct:free"
+
 
     def test_validate_configuration(self):
         """Test configuration validation."""
