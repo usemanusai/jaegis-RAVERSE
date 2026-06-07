@@ -153,21 +153,20 @@ class OnlineOrchestrationAgent:
             self.end_time = datetime.now()
             raise
 
-    def _execute_pipeline(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute analysis pipeline."""
-        pipeline_results = {}
-        
-        # Phase 1: Reconnaissance
+    def _execute_recon_phase(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 1: Reconnaissance."""
         self.logger.info("\n[PHASE 1] Reconnaissance")
         recon_task = {
             "target_url": target_url,
             "scope": scope,
             "options": options.get("recon", {})
         }
-        pipeline_results["recon"] = self.agents['RECON'].execute(recon_task)
-        self.agent_results['RECON'] = pipeline_results["recon"]
-        
-        # Phase 2: Traffic Interception
+        result = self.agents['RECON'].execute(recon_task)
+        self.agent_results['RECON'] = result
+        return result
+
+    def _execute_traffic_phase(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 2: Traffic Interception."""
         self.logger.info("\n[PHASE 2] Traffic Interception")
         traffic_task = {
             "target_url": target_url,
@@ -175,64 +174,80 @@ class OnlineOrchestrationAgent:
             "scope": scope,
             "options": options.get("traffic", {})
         }
-        pipeline_results["traffic"] = self.agents['TRAFFIC'].execute(traffic_task)
-        self.agent_results['TRAFFIC'] = pipeline_results["traffic"]
-        
-        # Phase 3: JavaScript Analysis
-        if pipeline_results["recon"].get("result", {}).get("endpoints"):
-            self.logger.info("\n[PHASE 3] JavaScript Analysis")
-            js_task = {
-                "javascript_code": "// Mock JS code",
-                "source_url": target_url,
-                "options": options.get("js_analysis", {})
-            }
-            pipeline_results["js_analysis"] = self.agents['JS_ANALYSIS'].execute(js_task)
-            self.agent_results['JS_ANALYSIS'] = pipeline_results["js_analysis"]
-        
-        # Phase 4: API Reverse Engineering
-        if pipeline_results["traffic"].get("result", {}).get("api_calls"):
-            self.logger.info("\n[PHASE 4] API Reverse Engineering")
-            api_task = {
-                "api_calls": pipeline_results["traffic"].get("result", {}).get("api_calls", []),
-                "traffic_data": pipeline_results["traffic"].get("result", {}),
-                "options": options.get("api_reeng", {})
-            }
-            pipeline_results["api_reeng"] = self.agents['API_REENG'].execute(api_task)
-            self.agent_results['API_REENG'] = pipeline_results["api_reeng"]
-        
-        # Phase 5: Security Analysis
+        result = self.agents['TRAFFIC'].execute(traffic_task)
+        self.agent_results['TRAFFIC'] = result
+        return result
+
+    def _execute_js_analysis_phase(self, target_url: str, options: Dict[str, Any], recon_results: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute Phase 3: JavaScript Analysis."""
+        if not recon_results.get("result", {}).get("endpoints"):
+            return None
+
+        self.logger.info("\n[PHASE 3] JavaScript Analysis")
+        js_task = {
+            "javascript_code": "// Mock JS code",
+            "source_url": target_url,
+            "options": options.get("js_analysis", {})
+        }
+        result = self.agents['JS_ANALYSIS'].execute(js_task)
+        self.agent_results['JS_ANALYSIS'] = result
+        return result
+
+    def _execute_api_reeng_phase(self, traffic_results: Dict[str, Any], options: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute Phase 4: API Reverse Engineering."""
+        if not traffic_results.get("result", {}).get("api_calls"):
+            return None
+
+        self.logger.info("\n[PHASE 4] API Reverse Engineering")
+        api_task = {
+            "api_calls": traffic_results.get("result", {}).get("api_calls", []),
+            "traffic_data": traffic_results.get("result", {}),
+            "options": options.get("api_reeng", {})
+        }
+        result = self.agents['API_REENG'].execute(api_task)
+        self.agent_results['API_REENG'] = result
+        return result
+
+    def _execute_security_phase(self, target_url: str, recon_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 5: Security Analysis."""
         self.logger.info("\n[PHASE 5] Security Analysis")
         security_task = {
             "target_url": target_url,
-            "findings": pipeline_results.get("recon", {}).get("result", {}),
+            "findings": recon_results.get("result", {}),
             "code": "",
             "options": options.get("security", {})
         }
-        pipeline_results["security"] = self.agents['SECURITY'].execute(security_task)
-        self.agent_results['SECURITY'] = pipeline_results["security"]
-        
-        # Phase 6: AI Co-Pilot Analysis
+        result = self.agents['SECURITY'].execute(security_task)
+        self.agent_results['SECURITY'] = result
+        return result
+
+    def _execute_ai_copilot_phase(self, target_url: str, security_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 6: AI Co-Pilot Analysis."""
         self.logger.info("\n[PHASE 6] AI Co-Pilot Analysis")
         ai_task = {
             "analysis_type": "vulnerability_analysis",
-            "content": json.dumps(pipeline_results.get("security", {}).get("result", {})),
+            "content": json.dumps(security_results.get("result", {})),
             "context": {"target": target_url},
             "options": options.get("ai_copilot", {})
         }
-        pipeline_results["ai_copilot"] = self.agents['AI_COPILOT'].execute(ai_task)
-        self.agent_results['AI_COPILOT'] = pipeline_results["ai_copilot"]
-        
-        # Phase 7: Validation
+        result = self.agents['AI_COPILOT'].execute(ai_task)
+        self.agent_results['AI_COPILOT'] = result
+        return result
+
+    def _execute_validation_phase(self, target_url: str, security_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 7: Validation."""
         self.logger.info("\n[PHASE 7] Validation")
         validation_task = {
-            "vulnerabilities": pipeline_results.get("security", {}).get("result", {}).get("vulnerabilities", []),
+            "vulnerabilities": security_results.get("result", {}).get("vulnerabilities", []),
             "target_url": target_url,
             "options": options.get("validation", {})
         }
-        pipeline_results["validation"] = self.agents['VALIDATION'].execute(validation_task)
-        self.agent_results['VALIDATION'] = pipeline_results["validation"]
-        
-        # Phase 8: Reporting
+        result = self.agents['VALIDATION'].execute(validation_task)
+        self.agent_results['VALIDATION'] = result
+        return result
+
+    def _execute_reporting_phase(self, target_url: str, pipeline_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 8: Reporting."""
         self.logger.info("\n[PHASE 8] Reporting")
         reporting_task = {
             "analysis_results": {
@@ -249,8 +264,41 @@ class OnlineOrchestrationAgent:
             "report_format": options.get("report_format", "markdown"),
             "options": options.get("reporting", {})
         }
-        pipeline_results["reporting"] = self.agents['REPORTING'].execute(reporting_task)
-        self.agent_results['REPORTING'] = pipeline_results["reporting"]
+        result = self.agents['REPORTING'].execute(reporting_task)
+        self.agent_results['REPORTING'] = result
+        return result
+
+    def _execute_pipeline(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute analysis pipeline."""
+        pipeline_results = {}
+
+        # Phase 1: Reconnaissance
+        pipeline_results["recon"] = self._execute_recon_phase(target_url, scope, options)
+
+        # Phase 2: Traffic Interception
+        pipeline_results["traffic"] = self._execute_traffic_phase(target_url, scope, options)
+
+        # Phase 3: JavaScript Analysis
+        js_analysis_result = self._execute_js_analysis_phase(target_url, options, pipeline_results["recon"])
+        if js_analysis_result:
+            pipeline_results["js_analysis"] = js_analysis_result
+
+        # Phase 4: API Reverse Engineering
+        api_reeng_result = self._execute_api_reeng_phase(pipeline_results["traffic"], options)
+        if api_reeng_result:
+            pipeline_results["api_reeng"] = api_reeng_result
+
+        # Phase 5: Security Analysis
+        pipeline_results["security"] = self._execute_security_phase(target_url, pipeline_results["recon"], options)
+
+        # Phase 6: AI Co-Pilot Analysis
+        pipeline_results["ai_copilot"] = self._execute_ai_copilot_phase(target_url, pipeline_results["security"], options)
+
+        # Phase 7: Validation
+        pipeline_results["validation"] = self._execute_validation_phase(target_url, pipeline_results["security"], options)
+
+        # Phase 8: Reporting
+        pipeline_results["reporting"] = self._execute_reporting_phase(target_url, pipeline_results, options)
         
         return pipeline_results
 
