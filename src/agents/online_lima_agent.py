@@ -122,6 +122,13 @@ class LIMAAgent(BaseMemoryAgent):
                 "functions": functions
             })
             
+            # Pre-serialize variables outside the retry loop to avoid repeated work
+            control_flow_json = json.dumps(control_flow)
+            data_flow_json = json.dumps(data_flow)
+            algorithms_json = json.dumps(algorithms)
+            flowchart_json = json.dumps(flowchart)
+            created_at = datetime.utcnow()
+
             # Store mapping with retry logic
             for attempt in range(self.max_retries):
                 try:
@@ -133,11 +140,11 @@ class LIMAAgent(BaseMemoryAgent):
                                 VALUES (%s, %s, %s, %s, %s, %s)
                             """, (
                                 mapping_id,
-                                json.dumps(control_flow),
-                                json.dumps(data_flow),
-                                json.dumps(algorithms),
-                                json.dumps(flowchart),
-                                datetime.utcnow()
+                                control_flow_json,
+                                data_flow_json,
+                                algorithms_json,
+                                flowchart_json,
+                                created_at
                             ))
                         conn.commit()
 

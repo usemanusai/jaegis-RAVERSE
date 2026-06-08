@@ -11,8 +11,8 @@ import time
 import hashlib
 from typing import Dict, List, Optional, Any
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.messages import HumanMessage, SystemMessage
 from utils.cache import CacheManager
 from utils.metrics import metrics_collector
 import json

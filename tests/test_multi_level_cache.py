@@ -459,3 +459,39 @@ class TestMultiLevelCacheEdgeCases:
         cache.get("ns", "key3")
         assert cache.stats['misses'] == 1
 
+
+import pytest
+from utils.multi_level_cache import get_multi_level_cache
+import utils.multi_level_cache
+
+class TestGetMultiLevelCache:
+    """Test get_multi_level_cache singleton function."""
+
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self):
+        """Reset global cache before and after each test."""
+        # Save original just in case
+        original = utils.multi_level_cache._multi_level_cache
+        utils.multi_level_cache._multi_level_cache = None
+        yield
+        utils.multi_level_cache._multi_level_cache = original
+
+    def test_get_multi_level_cache_singleton(self):
+        """Test that get_multi_level_cache returns a singleton."""
+        cache1 = get_multi_level_cache()
+        cache2 = get_multi_level_cache()
+        assert cache1 is cache2
+        assert cache1 is utils.multi_level_cache._multi_level_cache
+
+    def test_get_multi_level_cache_init_error(self, monkeypatch):
+        """Test error handling during MultiLevelCache initialization."""
+        def mock_init(*args, **kwargs):
+            raise Exception("Mocked initialization error")
+
+        monkeypatch.setattr(utils.multi_level_cache.MultiLevelCache, "__init__", mock_init)
+
+        with pytest.raises(Exception, match="Mocked initialization error"):
+            get_multi_level_cache()
+
+        # Ensure global instance remains None if initialization fails
+        assert utils.multi_level_cache._multi_level_cache is None

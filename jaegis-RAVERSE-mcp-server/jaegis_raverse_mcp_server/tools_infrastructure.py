@@ -1,6 +1,7 @@
 """Infrastructure tools for RAVERSE MCP Server"""
 
 import json
+import re
 from typing import Dict, Any, List, Optional
 from .types import ToolResult
 from .errors import ValidationError
@@ -28,10 +29,46 @@ class InfrastructureTools:
             if not query or not query.strip():
                 raise ValidationError("Query cannot be empty")
             
-            # Validate query doesn't contain dangerous operations
-            dangerous_keywords = ["DROP", "DELETE", "TRUNCATE"]
-            if any(kw in query.upper() for kw in dangerous_keywords):
-                logger.warning("Potentially dangerous query attempted", query=query)
+            # Remove comments to prevent WAF bypasses
+            # Multi-line comments /* ... */
+            query_clean = re.sub(r"/\*.*?\*/", "", query, flags=re.DOTALL)
+            # Single-line comments -- ...
+            query_clean = re.sub(r"--.*?\n", "\n", query_clean)
+            query_clean = re.sub(r"--.*$", "", query_clean)
+
+            # Remove string literals to prevent false positives when searching for keywords
+            # Use non-greedy match to avoid matching across lines if quote is missing
+            query_clean = re.sub(r"'(?:''|[^'\n])*'", "", query_clean)
+            query_clean = re.sub(r'"(?:""|[^"\n])*"', "", query_clean)
+
+            query_upper = query_clean.strip().upper()
+
+            # Strict allowlist: Only allow SELECT or WITH queries (for CTEs)
+            if not (query_upper.startswith("SELECT") or query_upper.startswith("WITH")):
+                logger.warning("Non-SELECT query attempted", query=query)
+                raise ValidationError("Only SELECT queries are permitted")
+
+            # Prevent multiple statements
+            query_no_semi = query_upper.rstrip(";")
+            if ";" in query_no_semi:
+                logger.warning("Multiple statements attempted in query", query=query)
+                raise ValidationError("Multiple statements are not permitted")
+
+            # Extra layer of defense: block dangerous keywords even if they slip past the SELECT check
+            # (e.g. WITH ... UPDATE ..., or SELECT ... INTO)
+            dangerous_keywords = {
+                "UPDATE", "DELETE", "INSERT", "DROP", "ALTER", "TRUNCATE",
+                "CREATE", "INTO", "GRANT", "REVOKE", "REPLACE", "EXECUTE",
+                "CALL", "DO", "COMMIT", "ROLLBACK", "MERGE", "UPSERT"
+            }
+            words = set(re.findall(r'\b[A-Z_]+\b', query_upper))
+            found_dangerous = words.intersection(dangerous_keywords)
+            if found_dangerous:
+                logger.warning(
+                    "Potentially dangerous query attempted",
+                    query=query,
+                    dangerous_keywords=list(found_dangerous)
+                )
                 raise ValidationError("Query contains potentially dangerous operations")
             
             logger.info("Database query initiated", query_length=len(query))

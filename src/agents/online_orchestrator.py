@@ -5,13 +5,11 @@ Coordinates all online agents for remote target analysis.
 
 import logging
 import json
-import time
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional, Tuple
 from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-from .online_base_agent import OnlineBaseAgent
 from .online_reconnaissance_agent import ReconnaissanceAgent
 from .online_traffic_interception_agent import TrafficInterceptionAgent
 from .online_javascript_analysis_agent import JavaScriptAnalysisAgent
@@ -126,7 +124,7 @@ class OnlineOrchestrationAgent:
         self.start_time = datetime.now()
         
         self.logger.info("=" * 80)
-        self.logger.info(f"RAVERSE Online - Analysis Pipeline Started")
+        self.logger.info("RAVERSE Online - Analysis Pipeline Started")
         self.logger.info(f"Run ID: {self.run_id}")
         self.logger.info(f"Target: {target_url}")
         self.logger.info("=" * 80)
@@ -155,21 +153,20 @@ class OnlineOrchestrationAgent:
             self.end_time = datetime.now()
             raise
 
-    def _execute_pipeline(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute analysis pipeline."""
-        pipeline_results = {}
-        
-        # Phase 1: Reconnaissance
+    def _execute_recon_phase(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 1: Reconnaissance."""
         self.logger.info("\n[PHASE 1] Reconnaissance")
         recon_task = {
             "target_url": target_url,
             "scope": scope,
             "options": options.get("recon", {})
         }
-        pipeline_results["recon"] = self.agents['RECON'].execute(recon_task)
-        self.agent_results['RECON'] = pipeline_results["recon"]
-        
-        # Phase 2: Traffic Interception
+        result = self.agents['RECON'].execute(recon_task)
+        self.agent_results['RECON'] = result
+        return result
+
+    def _execute_traffic_phase(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 2: Traffic Interception."""
         self.logger.info("\n[PHASE 2] Traffic Interception")
         traffic_task = {
             "target_url": target_url,
@@ -177,64 +174,80 @@ class OnlineOrchestrationAgent:
             "scope": scope,
             "options": options.get("traffic", {})
         }
-        pipeline_results["traffic"] = self.agents['TRAFFIC'].execute(traffic_task)
-        self.agent_results['TRAFFIC'] = pipeline_results["traffic"]
-        
-        # Phase 3: JavaScript Analysis
-        if pipeline_results["recon"].get("result", {}).get("endpoints"):
-            self.logger.info("\n[PHASE 3] JavaScript Analysis")
-            js_task = {
-                "javascript_code": "// Mock JS code",
-                "source_url": target_url,
-                "options": options.get("js_analysis", {})
-            }
-            pipeline_results["js_analysis"] = self.agents['JS_ANALYSIS'].execute(js_task)
-            self.agent_results['JS_ANALYSIS'] = pipeline_results["js_analysis"]
-        
-        # Phase 4: API Reverse Engineering
-        if pipeline_results["traffic"].get("result", {}).get("api_calls"):
-            self.logger.info("\n[PHASE 4] API Reverse Engineering")
-            api_task = {
-                "api_calls": pipeline_results["traffic"].get("result", {}).get("api_calls", []),
-                "traffic_data": pipeline_results["traffic"].get("result", {}),
-                "options": options.get("api_reeng", {})
-            }
-            pipeline_results["api_reeng"] = self.agents['API_REENG'].execute(api_task)
-            self.agent_results['API_REENG'] = pipeline_results["api_reeng"]
-        
-        # Phase 5: Security Analysis
+        result = self.agents['TRAFFIC'].execute(traffic_task)
+        self.agent_results['TRAFFIC'] = result
+        return result
+
+    def _execute_js_analysis_phase(self, target_url: str, options: Dict[str, Any], recon_results: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute Phase 3: JavaScript Analysis."""
+        if not recon_results.get("result", {}).get("endpoints"):
+            return None
+
+        self.logger.info("\n[PHASE 3] JavaScript Analysis")
+        js_task = {
+            "javascript_code": "// Mock JS code",
+            "source_url": target_url,
+            "options": options.get("js_analysis", {})
+        }
+        result = self.agents['JS_ANALYSIS'].execute(js_task)
+        self.agent_results['JS_ANALYSIS'] = result
+        return result
+
+    def _execute_api_reeng_phase(self, traffic_results: Dict[str, Any], options: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute Phase 4: API Reverse Engineering."""
+        if not traffic_results.get("result", {}).get("api_calls"):
+            return None
+
+        self.logger.info("\n[PHASE 4] API Reverse Engineering")
+        api_task = {
+            "api_calls": traffic_results.get("result", {}).get("api_calls", []),
+            "traffic_data": traffic_results.get("result", {}),
+            "options": options.get("api_reeng", {})
+        }
+        result = self.agents['API_REENG'].execute(api_task)
+        self.agent_results['API_REENG'] = result
+        return result
+
+    def _execute_security_phase(self, target_url: str, recon_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 5: Security Analysis."""
         self.logger.info("\n[PHASE 5] Security Analysis")
         security_task = {
             "target_url": target_url,
-            "findings": pipeline_results.get("recon", {}).get("result", {}),
+            "findings": recon_results.get("result", {}),
             "code": "",
             "options": options.get("security", {})
         }
-        pipeline_results["security"] = self.agents['SECURITY'].execute(security_task)
-        self.agent_results['SECURITY'] = pipeline_results["security"]
-        
-        # Phase 6: AI Co-Pilot Analysis
+        result = self.agents['SECURITY'].execute(security_task)
+        self.agent_results['SECURITY'] = result
+        return result
+
+    def _execute_ai_copilot_phase(self, target_url: str, security_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 6: AI Co-Pilot Analysis."""
         self.logger.info("\n[PHASE 6] AI Co-Pilot Analysis")
         ai_task = {
             "analysis_type": "vulnerability_analysis",
-            "content": json.dumps(pipeline_results.get("security", {}).get("result", {})),
+            "content": json.dumps(security_results.get("result", {})),
             "context": {"target": target_url},
             "options": options.get("ai_copilot", {})
         }
-        pipeline_results["ai_copilot"] = self.agents['AI_COPILOT'].execute(ai_task)
-        self.agent_results['AI_COPILOT'] = pipeline_results["ai_copilot"]
-        
-        # Phase 7: Validation
+        result = self.agents['AI_COPILOT'].execute(ai_task)
+        self.agent_results['AI_COPILOT'] = result
+        return result
+
+    def _execute_validation_phase(self, target_url: str, security_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 7: Validation."""
         self.logger.info("\n[PHASE 7] Validation")
         validation_task = {
-            "vulnerabilities": pipeline_results.get("security", {}).get("result", {}).get("vulnerabilities", []),
+            "vulnerabilities": security_results.get("result", {}).get("vulnerabilities", []),
             "target_url": target_url,
             "options": options.get("validation", {})
         }
-        pipeline_results["validation"] = self.agents['VALIDATION'].execute(validation_task)
-        self.agent_results['VALIDATION'] = pipeline_results["validation"]
-        
-        # Phase 8: Reporting
+        result = self.agents['VALIDATION'].execute(validation_task)
+        self.agent_results['VALIDATION'] = result
+        return result
+
+    def _execute_reporting_phase(self, target_url: str, pipeline_results: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Phase 8: Reporting."""
         self.logger.info("\n[PHASE 8] Reporting")
         reporting_task = {
             "analysis_results": {
@@ -251,8 +264,41 @@ class OnlineOrchestrationAgent:
             "report_format": options.get("report_format", "markdown"),
             "options": options.get("reporting", {})
         }
-        pipeline_results["reporting"] = self.agents['REPORTING'].execute(reporting_task)
-        self.agent_results['REPORTING'] = pipeline_results["reporting"]
+        result = self.agents['REPORTING'].execute(reporting_task)
+        self.agent_results['REPORTING'] = result
+        return result
+
+    def _execute_pipeline(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute analysis pipeline."""
+        pipeline_results = {}
+
+        # Phase 1: Reconnaissance
+        pipeline_results["recon"] = self._execute_recon_phase(target_url, scope, options)
+
+        # Phase 2: Traffic Interception
+        pipeline_results["traffic"] = self._execute_traffic_phase(target_url, scope, options)
+
+        # Phase 3: JavaScript Analysis
+        js_analysis_result = self._execute_js_analysis_phase(target_url, options, pipeline_results["recon"])
+        if js_analysis_result:
+            pipeline_results["js_analysis"] = js_analysis_result
+
+        # Phase 4: API Reverse Engineering
+        api_reeng_result = self._execute_api_reeng_phase(pipeline_results["traffic"], options)
+        if api_reeng_result:
+            pipeline_results["api_reeng"] = api_reeng_result
+
+        # Phase 5: Security Analysis
+        pipeline_results["security"] = self._execute_security_phase(target_url, pipeline_results["recon"], options)
+
+        # Phase 6: AI Co-Pilot Analysis
+        pipeline_results["ai_copilot"] = self._execute_ai_copilot_phase(target_url, pipeline_results["security"], options)
+
+        # Phase 7: Validation
+        pipeline_results["validation"] = self._execute_validation_phase(target_url, pipeline_results["security"], options)
+
+        # Phase 8: Reporting
+        pipeline_results["reporting"] = self._execute_reporting_phase(target_url, pipeline_results, options)
         
         return pipeline_results
 
@@ -338,6 +384,114 @@ class OnlineOrchestrationAgent:
         import uuid
         return f"RAVERSE-ONLINE-{uuid.uuid4().hex[:8].upper()}"
 
+    def _execute_layer0_onboarding(self) -> Dict[str, Any]:
+        """Layer 0: Version Management & Onboarding"""
+        self.logger.info("\n[LAYER 0] Version Management & Onboarding")
+        version_result = self.agents['VERSION_MANAGER'].execute({
+            "action": "validate_onboarding",
+            "run_id": self.run_id
+        })
+        if not version_result.get("onboarding_valid"):
+            raise ValueError("System onboarding validation failed")
+        return version_result
+
+    def _execute_layer1_kb_init(self) -> Dict[str, Any]:
+        """Layer 1: Knowledge Base Initialization"""
+        self.logger.info("\n[LAYER 1] Knowledge Base & RAG Initialization")
+        return self.agents['KNOWLEDGE_BASE'].execute({
+            "action": "list_knowledge",
+            "run_id": self.run_id
+        })
+
+    def _execute_layer2_pre_check(self, target_url: str, scope: Dict[str, Any]) -> Dict[str, Any]:
+        """Layer 2: Quality Gate Pre-Check"""
+        self.logger.info("\n[LAYER 2] Quality Gate Pre-Check")
+        quality_result = self.agents['QUALITY_GATE'].execute({
+            "action": "validate_phase",
+            "phase_name": "pre_analysis_validation",
+            "phase_data": {
+                "target_url": target_url,
+                "scope": scope,
+                "required_fields": ["target_url", "scope"]
+            },
+            "run_id": self.run_id
+        })
+        if not quality_result.get("passed"):
+            raise ValueError("Quality gate pre-check failed")
+        return quality_result
+
+    def _execute_layer3_governance_approval(self, target_url: str) -> Dict[str, Any]:
+        """Layer 3: Governance Approval"""
+        self.logger.info("\n[LAYER 3] Governance Approval")
+        return self.agents['GOVERNANCE'].execute({
+            "action": "create_approval_request",
+            "request_type": "analysis_execution",
+            "description": f"Analysis of {target_url}",
+            "requester": "system",
+            "approvers": ["admin"],
+            "priority": "high",
+            "run_id": self.run_id
+        })
+
+    def _execute_layer2_post_check(self, pipeline_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Layer 2: Quality Gate Post-Check"""
+        self.logger.info("\n[LAYER 2] Quality Gate Post-Check")
+        return self.agents['QUALITY_GATE'].execute({
+            "action": "validate_phase",
+            "phase_name": "post_analysis_validation",
+            "phase_data": pipeline_results,
+            "run_id": self.run_id
+        })
+
+    def _execute_layer5_document_generation(self, target_url: str, pipeline_results: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """Layer 5: Document Generation & Synthesis"""
+        self.logger.info("\n[LAYER 5] Document Generation & Synthesis")
+        manifest_result = self.agents['DOCUMENT_GENERATOR'].execute({
+            "action": "generate_manifest",
+            "research_topic": target_url,
+            "research_findings": pipeline_results,
+            "metadata": {
+                "run_id": self.run_id,
+                "timestamp": datetime.now().isoformat()
+            },
+            "run_id": self.run_id
+        })
+
+        white_paper_result = self.agents['DOCUMENT_GENERATOR'].execute({
+            "action": "generate_white_paper",
+            "topic": target_url,
+            "research_data": pipeline_results,
+            "analysis": pipeline_results.get("security", {}),
+            "run_id": self.run_id
+        })
+        return manifest_result, white_paper_result
+
+    def _execute_layer1_kb_store(self, target_url: str, pipeline_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Layer 1: Store in Knowledge Base"""
+        self.logger.info("\n[LAYER 1] Store Results in Knowledge Base")
+        return self.agents['KNOWLEDGE_BASE'].execute({
+            "action": "store_knowledge",
+            "content": json.dumps(pipeline_results),
+            "source": f"analysis_{self.run_id}",
+            "metadata": {
+                "target_url": target_url,
+                "run_id": self.run_id,
+                "timestamp": datetime.now().isoformat()
+            },
+            "run_id": self.run_id
+        })
+
+    def _execute_layer3_governance_final(self, request_id: str) -> Dict[str, Any]:
+        """Layer 3: Governance Approval of Results"""
+        self.logger.info("\n[LAYER 3] Governance Approval of Results")
+        return self.agents['GOVERNANCE'].execute({
+            "action": "approve_request",
+            "request_id": request_id,
+            "approver": "admin",
+            "comments": "Analysis completed successfully",
+            "run_id": self.run_id
+        })
+
     def run_complete_analysis(self, target_url: str, scope: Dict[str, Any], options: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Execute COMPLETE RAVERSE 2.0 analysis with all layers.
@@ -362,108 +516,19 @@ class OnlineOrchestrationAgent:
         self.logger.info("=" * 80)
 
         try:
-            # Layer 0: Version Management & Onboarding
-            self.logger.info("\n[LAYER 0] Version Management & Onboarding")
-            version_result = self.agents['VERSION_MANAGER'].execute({
-                "action": "validate_onboarding",
-                "run_id": self.run_id
-            })
-
-            if not version_result.get("onboarding_valid"):
-                raise ValueError("System onboarding validation failed")
-
-            # Layer 1: Knowledge Base Initialization
-            self.logger.info("\n[LAYER 1] Knowledge Base & RAG Initialization")
-            kb_result = self.agents['KNOWLEDGE_BASE'].execute({
-                "action": "list_knowledge",
-                "run_id": self.run_id
-            })
-
-            # Layer 2: Quality Gate Pre-Check
-            self.logger.info("\n[LAYER 2] Quality Gate Pre-Check")
-            quality_result = self.agents['QUALITY_GATE'].execute({
-                "action": "validate_phase",
-                "phase_name": "pre_analysis_validation",
-                "phase_data": {
-                    "target_url": target_url,
-                    "scope": scope,
-                    "required_fields": ["target_url", "scope"]
-                },
-                "run_id": self.run_id
-            })
-
-            if not quality_result.get("passed"):
-                raise ValueError("Quality gate pre-check failed")
-
-            # Layer 3: Governance Approval
-            self.logger.info("\n[LAYER 3] Governance Approval")
-            governance_result = self.agents['GOVERNANCE'].execute({
-                "action": "create_approval_request",
-                "request_type": "analysis_execution",
-                "description": f"Analysis of {target_url}",
-                "requester": "system",
-                "approvers": ["admin"],
-                "priority": "high",
-                "run_id": self.run_id
-            })
+            version_result = self._execute_layer0_onboarding()
+            kb_result = self._execute_layer1_kb_init()
+            quality_result = self._execute_layer2_pre_check(target_url, scope)
+            governance_result = self._execute_layer3_governance_approval(target_url)
 
             # Layer 4: Execute Main Pipeline
             self.logger.info("\n[LAYER 4] Multi-Agent Pipeline Execution")
             pipeline_results = self._execute_pipeline(target_url, scope, options or {})
 
-            # Layer 2: Quality Gate Post-Check
-            self.logger.info("\n[LAYER 2] Quality Gate Post-Check")
-            post_quality_result = self.agents['QUALITY_GATE'].execute({
-                "action": "validate_phase",
-                "phase_name": "post_analysis_validation",
-                "phase_data": pipeline_results,
-                "run_id": self.run_id
-            })
-
-            # Layer 5: Document Generation
-            self.logger.info("\n[LAYER 5] Document Generation & Synthesis")
-            manifest_result = self.agents['DOCUMENT_GENERATOR'].execute({
-                "action": "generate_manifest",
-                "research_topic": target_url,
-                "research_findings": pipeline_results,
-                "metadata": {
-                    "run_id": self.run_id,
-                    "timestamp": datetime.now().isoformat()
-                },
-                "run_id": self.run_id
-            })
-
-            white_paper_result = self.agents['DOCUMENT_GENERATOR'].execute({
-                "action": "generate_white_paper",
-                "topic": target_url,
-                "research_data": pipeline_results,
-                "analysis": pipeline_results.get("security", {}),
-                "run_id": self.run_id
-            })
-
-            # Layer 1: Store in Knowledge Base
-            self.logger.info("\n[LAYER 1] Store Results in Knowledge Base")
-            kb_store_result = self.agents['KNOWLEDGE_BASE'].execute({
-                "action": "store_knowledge",
-                "content": json.dumps(pipeline_results),
-                "source": f"analysis_{self.run_id}",
-                "metadata": {
-                    "target_url": target_url,
-                    "run_id": self.run_id,
-                    "timestamp": datetime.now().isoformat()
-                },
-                "run_id": self.run_id
-            })
-
-            # Layer 3: Governance Approval of Results
-            self.logger.info("\n[LAYER 3] Governance Approval of Results")
-            self.agents['GOVERNANCE'].execute({
-                "action": "approve_request",
-                "request_id": governance_result.get("request_id"),
-                "approver": "admin",
-                "comments": "Analysis completed successfully",
-                "run_id": self.run_id
-            })
+            self._execute_layer2_post_check(pipeline_results)
+            manifest_result, white_paper_result = self._execute_layer5_document_generation(target_url, pipeline_results)
+            self._execute_layer1_kb_store(target_url, pipeline_results)
+            self._execute_layer3_governance_final(governance_result.get("request_id"))
 
             self.end_time = datetime.now()
 
