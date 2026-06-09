@@ -54,3 +54,69 @@ def test_get_embedding_generator_singleton(mock_sentence_transformer):
 
     # SentenceTransformer should only be instantiated once
     mock_sentence_transformer.assert_called_once()
+
+@patch("src.utils.embeddings_v2.SentenceTransformer")
+def test_find_most_similar_vectorized(mock_sentence_transformer):
+    import numpy as np
+    generator = get_embedding_generator()
+
+    query = np.array([1.0, 0.0, 0.0])
+    candidates = [
+        np.array([1.0, 0.0, 0.0]),  # Exact match
+        np.array([0.0, 1.0, 0.0]),  # Orthogonal
+        np.array([0.5, 0.5, 0.0]),  # Partial match
+        np.array([-1.0, 0.0, 0.0]), # Opposite
+    ]
+
+    results = generator.find_most_similar(query, candidates, top_k=2)
+    assert len(results) == 2
+    assert results[0][0] == 0  # First element is the exact match
+    assert abs(results[0][1] - 1.0) < 1e-6
+    assert results[1][0] == 2  # Second element is partial match
+    assert abs(results[1][1] - 0.707106) < 1e-5
+
+@patch("src.utils.embeddings_v2.SentenceTransformer")
+def test_find_most_similar_empty_candidates(mock_sentence_transformer):
+    import numpy as np
+    generator = get_embedding_generator()
+    query = np.array([1.0, 0.0])
+    results = generator.find_most_similar(query, [], top_k=5)
+    assert results == []
+
+@patch("src.utils.embeddings_v2.SentenceTransformer")
+def test_find_most_similar_zero_norm(mock_sentence_transformer):
+    import numpy as np
+    generator = get_embedding_generator()
+
+    query = np.array([0.0, 0.0, 0.0])
+    candidates = [np.array([1.0, 0.0, 0.0])]
+    results = generator.find_most_similar(query, candidates)
+    assert results == [(0, 0.0)]
+
+    query2 = np.array([1.0, 0.0, 0.0])
+    candidates2 = [np.array([0.0, 0.0, 0.0])]
+    results2 = generator.find_most_similar(query2, candidates2)
+    assert results2 == [(0, 0.0)]
+
+@patch("src.utils.embeddings_v2.SentenceTransformer")
+def test_find_most_similar_fallback(mock_sentence_transformer):
+    import numpy as np
+    generator = get_embedding_generator()
+    query = np.array([1.0, 0.0])
+
+    class UnstackableList(list):
+        def __array__(self, dtype=None, copy=None):
+            raise ValueError("Cannot stack")
+
+    # Use a custom list that throws ValueError on np.array()
+    candidates = UnstackableList([
+        np.array([1.0, 0.0]),
+        np.array([0.0, 1.0])
+    ])
+
+    results = generator.find_most_similar(query, candidates, top_k=2)
+    assert len(results) == 2
+    assert results[0][0] == 0
+    assert abs(results[0][1] - 1.0) < 1e-6
+    assert results[1][0] == 1
+    assert abs(results[1][1] - 0.0) < 1e-6

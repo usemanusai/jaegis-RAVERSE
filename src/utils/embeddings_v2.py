@@ -223,7 +223,7 @@ class EmbeddingGenerator:
         top_k: int = 5
     ) -> List[Tuple[int, float]]:
         """
-        Find most similar embeddings to query.
+        Find most similar embeddings to query using optimized vectorized computation.
         
         Args:
             query_embedding: Query embedding vector
@@ -233,14 +233,58 @@ class EmbeddingGenerator:
         Returns:
             List of (index, similarity_score) tuples
         """
-        similarities = [
-            (i, self.compute_similarity(query_embedding, emb))
-            for i, emb in enumerate(candidate_embeddings)
-        ]
-        
-        # Sort by similarity (descending)
+        if not candidate_embeddings:
+            return []
+
+        query_norm = np.linalg.norm(query_embedding)
+        if query_norm == 0:
+            # If query is zero-vector, return 0 similarity for top_k items
+            return [(i, 0.0) for i in range(min(top_k, len(candidate_embeddings)))]
+
+        # Try vectorized numpy operations for 5x-10x performance gain on large arrays
+        try:
+            # Stack into a single 2D array
+            c_arr = np.array(candidate_embeddings)
+
+            # Ensure it's 2D to do matrix operations
+            if c_arr.ndim == 2:
+                # Compute dot products all at once
+                dots = np.dot(c_arr, query_embedding)
+
+                # Compute norms all at once
+                c_norms = np.linalg.norm(c_arr, axis=1)
+
+                # Avoid division by zero
+                mask = c_norms != 0
+                sims = np.zeros_like(dots)
+                sims[mask] = dots[mask] / (query_norm * c_norms[mask])
+
+                k = min(top_k, len(candidate_embeddings))
+                if len(sims) > k:
+                    # O(N) selection of top k indices using argpartition
+                    top_indices = np.argpartition(sims, -k)[-k:]
+                    # Sort only the top k indices by their actual similarity value
+                    top_indices = top_indices[np.argsort(sims[top_indices])[::-1]]
+                else:
+                    top_indices = np.argsort(sims)[::-1]
+
+                return [(int(i), float(sims[i])) for i in top_indices]
+        except Exception:
+            # Fallback if embeddings can't be stacked (e.g. different shapes)
+            pass
+
+        # Fallback to optimized iterative calculation (still precalculating query_norm)
+        similarities = []
+        for i, emb in enumerate(candidate_embeddings):
+            norm2 = np.linalg.norm(emb)
+            if norm2 == 0:
+                sim = 0.0
+            else:
+                # Inline dot product calculation for slight speedup
+                sim = float(np.dot(query_embedding, emb) / (query_norm * norm2))
+            similarities.append((i, sim))
+
         similarities.sort(key=lambda x: x[1], reverse=True)
-        
         return similarities[:top_k]
     
     def get_embedding_dimension(self) -> int:
