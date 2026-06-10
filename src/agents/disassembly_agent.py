@@ -5,7 +5,7 @@ Date: October 25, 2025
 This module provides specialized disassembly capabilities using capstone.
 """
 
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 import capstone
 from utils.binary_utils import BinaryAnalyzer
 from utils.database import DatabaseManager
@@ -95,7 +95,6 @@ class DisassemblyAgent:
             Function disassembly with metadata
         """
         instructions = []
-        current_address = start_address
         offset = self.analyzer.va_to_offset(start_address)
         
         # Read larger chunk for function
@@ -503,26 +502,34 @@ class DisassemblyAgent:
         
         start_time = time.time()
         
-        for instr in instructions:
-            query = """
-                INSERT INTO raverse.disassembly_cache
-                (binary_id, address, instruction, opcode, operands, disassembly_text, metadata)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (binary_id, address) DO NOTHING
-            """
+        if not instructions:
+            return
             
-            self.db.execute_query(
-                query,
-                (
-                    binary_id,
-                    instr["address"],
-                    instr["full"],
-                    instr["mnemonic"],
-                    instr["op_str"],
-                    instr["full"],
-                    {"bytes": instr["bytes"], "size": instr["size"]}
-                )
+        # ⚡ Bolt Optimization: Fixed N+1 Query Problem
+        # Instead of executing an INSERT query for every instruction in a loop,
+        # we batch all instructions together using `execute_values_query`.
+        # This drastically reduces database round-trips and transaction overhead.
+        query = """
+            INSERT INTO raverse.disassembly_cache
+            (binary_id, address, instruction, opcode, operands, disassembly_text, metadata)
+            VALUES %s
+            ON CONFLICT (binary_id, address) DO NOTHING
+        """
+
+        argslist = [
+            (
+                binary_id,
+                instr["address"],
+                instr["full"],
+                instr["mnemonic"],
+                instr["op_str"],
+                instr["full"],
+                {"bytes": instr["bytes"], "size": instr["size"]}
             )
+            for instr in instructions
+        ]
+
+        self.db.execute_values_query(query, argslist)
         
         duration = time.time() - start_time
         metrics_collector.record_database_query('cache_disassembly', duration)
