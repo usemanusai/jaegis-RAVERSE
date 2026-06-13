@@ -4,3 +4,7 @@
 ## 2025-10-25 - N+1 Query in Vector Embeddings Insert
 **Learning:** Inserting multiple embeddings via a loop with individual INSERT RETURNING statements caused an N+1 query problem, slowing down batch processing.
 **Action:** Use `psycopg2.extras.execute_values` to send a single multi-row INSERT statement for batched database operations.
+
+## 2026-06-13 - N+1 Query in Disassembly Caching
+**Learning:** The disassembly agent iterated over instructions and executed an individual `INSERT` query for each, resulting in an N+1 query problem that severely degrades performance for large binaries.
+**Action:** Replaced the loop with `DatabaseManager.execute_values_query` to perform a single batch insert, explicitly serializing dicts to JSON when required.

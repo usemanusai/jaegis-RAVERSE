@@ -7,6 +7,7 @@ This module provides specialized disassembly capabilities using capstone.
 
 from typing import List, Dict, Optional, Tuple
 import capstone
+import json
 from utils.binary_utils import BinaryAnalyzer
 from utils.database import DatabaseManager
 from utils.metrics import metrics_collector
@@ -503,26 +504,31 @@ class DisassemblyAgent:
         
         start_time = time.time()
         
-        for instr in instructions:
-            query = """
-                INSERT INTO raverse.disassembly_cache
-                (binary_id, address, instruction, opcode, operands, disassembly_text, metadata)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (binary_id, address) DO NOTHING
-            """
-            
-            self.db.execute_query(
-                query,
-                (
-                    binary_id,
-                    instr["address"],
-                    instr["full"],
-                    instr["mnemonic"],
-                    instr["op_str"],
-                    instr["full"],
-                    {"bytes": instr["bytes"], "size": instr["size"]}
-                )
+        # Performance improvement: Use execute_values_query for batch inserting instructions
+        # This replaces an O(n) series of single INSERTs (N+1 query problem) with a single batched INSERT statement,
+        # dramatically reducing database round-trip overhead when processing large amounts of disassembly.
+        query = """
+            INSERT INTO raverse.disassembly_cache
+            (binary_id, address, instruction, opcode, operands, disassembly_text, metadata)
+            VALUES %s
+            ON CONFLICT (binary_id, address) DO NOTHING
+        """
+
+        argslist = [
+            (
+                binary_id,
+                instr["address"],
+                instr["full"],
+                instr["mnemonic"],
+                instr["op_str"],
+                instr["full"],
+                json.dumps({"bytes": instr["bytes"], "size": instr["size"]})
             )
+            for instr in instructions
+        ]
+
+        if argslist:
+            self.db.execute_values_query(query, argslist)
         
         duration = time.time() - start_time
         metrics_collector.record_database_query('cache_disassembly', duration)
